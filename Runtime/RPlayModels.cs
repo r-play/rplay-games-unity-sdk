@@ -111,6 +111,9 @@ namespace RPlay.Games
 
     public sealed class RPlayConsumeOptions
     {
+        /// <summary>
+        /// true이면 소비 확인과 잔액 부족 안내를 포함한 SDK의 소비 팝업을 모두 생략합니다.
+        /// </summary>
         public bool SkipConfirmation { get; set; }
 
         public string ItemDescription { get; set; }

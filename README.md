@@ -107,8 +107,8 @@ var result = await RPlayGames.ConsumeAsync(
 );
 ```
 
-- 기본값에서는 Editor와 Standalone에 RPlay 공용 확인 UI가 자동으로 표시됩니다.
-- `SkipConfirmation = true`이면 확인 UI 없이 운영 코인 또는 크레딧이 즉시 차감될 수 있습니다.
+- 기본값에서는 Editor와 Standalone에 RPlay 공용 소비 확인 UI가 표시되며, 잔액이 부족하면 코인 또는 크레딧 부족 안내가 표시됩니다.
+- `SkipConfirmation = true`이면 SDK의 소비 관련 팝업이 전혀 표시되지 않으며 운영 코인 또는 크레딧이 즉시 차감될 수 있습니다.
 - StoryEngine의 `amount` 단위는 게임 코인이며 실제 크레딧 소비량은 현재 서버 계약에 따라 `amount × 14`입니다.
 - WebGL에서는 기존 웹 팝업이 소비 확인을 처리합니다.
 

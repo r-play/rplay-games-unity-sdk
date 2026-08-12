@@ -317,6 +317,12 @@ namespace RPlay.Games
                                 catch (OperationCanceledException)
                                 {
                                 }
+
+                                await ShowInsufficientBalanceIfNeededAsync(
+                                    earlyResult,
+                                    options,
+                                    cancellationToken
+                                );
                                 return earlyResult;
                             }
                             confirmed = await confirmationTask;
@@ -355,7 +361,13 @@ namespace RPlay.Games
                             return confirmationResult;
                         }
 
-                        return await consumeTask;
+                        var result = await consumeTask;
+                        await ShowInsufficientBalanceIfNeededAsync(
+                            result,
+                            options,
+                            cancellationToken
+                        );
+                        return result;
                     }
                     catch
                     {
@@ -376,6 +388,33 @@ namespace RPlay.Games
             {
                 ConsumeLock.Release();
             }
+        }
+
+        private static async Task ShowInsufficientBalanceIfNeededAsync(
+            RPlayConsumeResult result,
+            RPlayConsumeOptions options,
+            CancellationToken cancellationToken
+        )
+        {
+            // UI 생략 옵션은 소비 확인뿐 아니라 잔액 부족 안내를 포함한 모든 SDK 팝업에 적용한다.
+            if (
+                options.SkipConfirmation
+                || result == null
+                || (
+                    result.ErrorCode != "INSUFFICIENT_COINS"
+                    && result.ErrorCode != "INSUFFICIENT_CREDITS"
+                    && result.Status != "insufficient_coins"
+                    && result.Status != "insufficient_credits"
+                )
+            )
+            {
+                return;
+            }
+
+            await RPlayConfirmationOverlay.ShowInsufficientBalanceAsync(
+                connectSession.PlatformType == "storyengine",
+                cancellationToken
+            );
         }
 
         public static Task<RPlayGameData> LoadDataAsync(

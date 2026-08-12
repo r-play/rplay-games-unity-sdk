@@ -105,7 +105,7 @@ namespace RPlay.Games.Samples
                 { SampleText.ConsumeAmount, new[] { "소비 금액", "Amount to consume", "消費額", "Cantidad a consumir", "消耗金額", "消耗金额" } },
                 { SampleText.ItemName, new[] { "아이템 이름", "Item name", "アイテム名", "Nombre del objeto", "道具名稱", "道具名称" } },
                 { SampleText.ItemDescription, new[] { "아이템 설명", "Item description", "アイテム説明", "Descripción del objeto", "道具說明", "道具说明" } },
-                { SampleText.SkipConfirmation, new[] { "소비 확인 UI 생략", "Skip consume confirmation", "消費確認 UI を省略", "Omitir confirmación de consumo", "略過消耗確認 UI", "跳过消耗确认 UI" } },
+                { SampleText.SkipConfirmation, new[] { "SDK 소비 팝업 생략", "Skip SDK consume popups", "SDK の消費ポップアップを省略", "Omitir ventanas de consumo del SDK", "略過 SDK 消耗彈窗", "跳过 SDK 消耗弹窗" } },
                 { SampleText.OpenCharge, new[] { "충전 화면 열기", "Open charge screen", "チャージ画面を開く", "Abrir pantalla de recarga", "開啟儲值畫面", "打开充值页面" } },
                 { SampleText.Consume, new[] { "재화 소비", "Consume currency", "通貨を消費", "Consumir moneda", "消耗貨幣", "消耗货币" } },
                 { SampleText.LogTitle, new[] { "API 응답 로그", "API response log", "API レスポンスログ", "Registro de respuestas de API", "API 回應紀錄", "API 响应日志" } },
@@ -464,7 +464,7 @@ namespace RPlay.Games.Samples
                 RequestChargeAsync
             );
             // 운영 계정의 코인 또는 크레딧을 실제로 소비한다.
-            // 소비 확인 생략이 켜져 있으면 별도 확인 없이 즉시 차감될 수 있다.
+            // SDK 소비 팝업 생략이 켜져 있으면 확인 및 잔액 부족 안내 없이 결과만 반환한다.
             BindResponseButton<RPlayConsumeResult>(
                 "CurrencySection/Buttons/ConsumeButton",
                 "재화 소비",
@@ -575,7 +575,7 @@ namespace RPlay.Games.Samples
         }
 
         // 아이템 정보와 샘플 메타데이터를 포함해 운영 재화 소비 요청을 보낸다.
-        // SkipConfirmation은 개발자가 명시적으로 선택한 경우에만 확인 UI를 생략한다.
+        // SkipConfirmation은 소비 확인과 잔액 부족 안내를 포함한 SDK 팝업을 모두 생략한다.
         private Task<RPlayConsumeResult> ConsumeAsync()
         {
             return RPlayGames.ConsumeAsync(

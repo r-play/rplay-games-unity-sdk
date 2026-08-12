@@ -16,6 +16,8 @@ namespace RPlay.Games.Internal
         internal double Amount { get; set; }
 
         internal bool IsStoryEngine { get; set; }
+
+        internal bool IsInsufficientBalance { get; set; }
     }
 
     internal sealed class RPlayConfirmationOverlay : MonoBehaviour
@@ -38,6 +40,22 @@ namespace RPlay.Games.Internal
             return overlay.Show(prompt, cancellationToken);
         }
 
+        internal static async Task ShowInsufficientBalanceAsync(
+            bool isStoryEngine,
+            CancellationToken cancellationToken
+        )
+        {
+            var overlay = RPlayRuntimeHost.Instance.gameObject.AddComponent<RPlayConfirmationOverlay>();
+            await overlay.Show(
+                new RPlayConsumePrompt
+                {
+                    IsStoryEngine = isStoryEngine,
+                    IsInsufficientBalance = true,
+                },
+                cancellationToken
+            );
+        }
+
         private Task<bool> Show(
             RPlayConsumePrompt prompt,
             CancellationToken cancellationToken
@@ -45,7 +63,10 @@ namespace RPlay.Games.Internal
         {
             completion = new TaskCompletionSource<bool>();
             cancellationRegistration = cancellationToken.Register(() => cancelRequested = true);
-            deadline = Time.realtimeSinceStartup + ConfirmationTimeoutSeconds;
+            // 잔액 부족 안내는 사용자가 직접 닫을 때까지 유지한다.
+            deadline = prompt.IsInsufficientBalance
+                ? float.PositiveInfinity
+                : Time.realtimeSinceStartup + ConfirmationTimeoutSeconds;
             BuildUi(prompt);
             return completion.Task;
         }
@@ -91,7 +112,7 @@ namespace RPlay.Games.Internal
             EnsureEventSystem();
 
             overlayRoot = new GameObject(
-                "RPlay 소비 확인",
+                prompt.IsInsufficientBalance ? "RPlay 잔액 부족 안내" : "RPlay 소비 확인",
                 typeof(RectTransform),
                 typeof(Canvas),
                 typeof(CanvasScaler),
@@ -119,13 +140,59 @@ namespace RPlay.Games.Internal
             panelRect.anchorMin = new Vector2(0.5f, 0.5f);
             panelRect.anchorMax = new Vector2(0.5f, 0.5f);
             panelRect.pivot = new Vector2(0.5f, 0.5f);
-            panelRect.sizeDelta = new Vector2(620f, 460f);
+            panelRect.sizeDelta = prompt.IsInsufficientBalance
+                ? new Vector2(620f, 360f)
+                : new Vector2(620f, 460f);
 
             var textColor = new Color32(32, 37, 41, 255);
             var mutedTextColor = new Color32(82, 90, 97, 255);
             var accentColor = prompt.IsStoryEngine
                 ? new Color32(99, 46, 255, 255)
                 : new Color32(37, 150, 190, 255);
+
+            if (prompt.IsInsufficientBalance)
+            {
+                CreateText(
+                    "제목",
+                    panel.transform,
+                    RPlayLocalization.Get(
+                        prompt.IsStoryEngine
+                            ? "insufficient_credits_title"
+                            : "insufficient_coins_title"
+                    ),
+                    34,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(40f, -126f),
+                    new Vector2(-40f, -70f),
+                    textColor
+                );
+
+                CreateText(
+                    "안내",
+                    panel.transform,
+                    RPlayLocalization.Get("insufficient_balance_description"),
+                    21,
+                    FontStyle.Normal,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(50f, -204f),
+                    new Vector2(-50f, -148f),
+                    mutedTextColor
+                );
+
+                CreateButton(
+                    "확인",
+                    panel.transform,
+                    RPlayLocalization.Get("ok"),
+                    new Vector2(46f, 60f),
+                    new Vector2(574f, 124f),
+                    accentColor,
+                    Color.white,
+                    roundedSprite,
+                    () => Finish(false, false)
+                );
+                return;
+            }
 
             CreateText(
                 "제목",
@@ -489,6 +556,10 @@ namespace RPlay.Games.Internal
                 case "credits": return "크레딧";
                 case "confirm": return "구매";
                 case "cancel": return "취소";
+                case "insufficient_coins_title": return "코인이 부족합니다.";
+                case "insufficient_credits_title": return "크레딧이 부족합니다.";
+                case "insufficient_balance_description": return "충전 후 다시 시도해 주세요.";
+                case "ok": return "확인";
                 case "login_completed_title": return "로그인이 완료되었습니다.";
                 case "login_completed_description": return "이 창을 닫고 게임으로 돌아가세요.";
                 default: return key;
@@ -505,6 +576,10 @@ namespace RPlay.Games.Internal
                 case "credits": return "Credits";
                 case "confirm": return "Purchase";
                 case "cancel": return "Cancel";
+                case "insufficient_coins_title": return "Not enough coins";
+                case "insufficient_credits_title": return "Not enough credits";
+                case "insufficient_balance_description": return "Add more and try again.";
+                case "ok": return "OK";
                 case "login_completed_title": return "Sign-in complete";
                 case "login_completed_description": return "Close this window and return to the game.";
                 default: return key;
@@ -521,6 +596,10 @@ namespace RPlay.Games.Internal
                 case "credits": return "クレジット";
                 case "confirm": return "購入";
                 case "cancel": return "キャンセル";
+                case "insufficient_coins_title": return "コインが不足しています";
+                case "insufficient_credits_title": return "クレジットが不足しています";
+                case "insufficient_balance_description": return "チャージしてからもう一度お試しください。";
+                case "ok": return "確認";
                 case "login_completed_title": return "ログインが完了しました。";
                 case "login_completed_description": return "この画面を閉じてゲームに戻ってください。";
                 default: return key;
@@ -537,6 +616,10 @@ namespace RPlay.Games.Internal
                 case "credits": return "Créditos";
                 case "confirm": return "Comprar";
                 case "cancel": return "Cancelar";
+                case "insufficient_coins_title": return "No tienes suficientes monedas";
+                case "insufficient_credits_title": return "No tienes suficientes créditos";
+                case "insufficient_balance_description": return "Recarga y vuelve a intentarlo.";
+                case "ok": return "Aceptar";
                 case "login_completed_title": return "Inicio de sesión completado";
                 case "login_completed_description": return "Cierra esta ventana y vuelve al juego.";
                 default: return key;
@@ -553,6 +636,10 @@ namespace RPlay.Games.Internal
                 case "credits": return "点数";
                 case "confirm": return "购买";
                 case "cancel": return "取消";
+                case "insufficient_coins_title": return "金币不足";
+                case "insufficient_credits_title": return "点数不足";
+                case "insufficient_balance_description": return "充值后请重试。";
+                case "ok": return "确认";
                 case "login_completed_title": return "登录已完成";
                 case "login_completed_description": return "请关闭此窗口并返回游戏。";
                 default: return key;
@@ -569,6 +656,10 @@ namespace RPlay.Games.Internal
                 case "credits": return "點數";
                 case "confirm": return "購買";
                 case "cancel": return "取消";
+                case "insufficient_coins_title": return "金幣不足";
+                case "insufficient_credits_title": return "點數不足";
+                case "insufficient_balance_description": return "儲值後請再試一次。";
+                case "ok": return "確認";
                 case "login_completed_title": return "登入已完成";
                 case "login_completed_description": return "請關閉此視窗並返回遊戲。";
                 default: return key;
