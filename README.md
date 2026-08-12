@@ -17,7 +17,7 @@ RPlay Games와 StoryEngine의 게임 API를 Unity에서 일관된 C# API로 사�
 개발 중인 현재 프로젝트에서는 `Packages/com.rplay.games-sdk` 임베디드 패키지로 포함되어 있습니다. Git 배포 후에는 Unity Package Manager의 Git URL 설치 방식을 사용합니다.
 
 ```text
-https://github.com/r-play/rplay-games-unity-sdk.git#v0.1.1
+https://github.com/r-play/rplay-games-unity-sdk.git#v0.1.2
 ```
 
 ## 초기 설정
@@ -117,3 +117,7 @@ var result = await RPlayGames.ConsumeAsync(
 ## 오류 처리
 
 네트워크 실패, 잘못된 JSON 등 응답 자체를 처리할 수 없는 경우 `RPlayApiException`이 발생합니다. 서버가 정상적으로 반환한 비즈니스 실패는 응답의 `Success`, `Status`, `ErrorCode`, `Message`로 확인합니다.
+
+## 라이선스
+
+Copyright (c) 2026 PLAX INC. 이 SDK는 [MIT License](LICENSE.md)로 제공됩니다.

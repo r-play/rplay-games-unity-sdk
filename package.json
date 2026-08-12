@@ -1,12 +1,14 @@
 {
   "name": "com.rplay.games-sdk",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "displayName": "RPlay Games SDK",
   "description": "Unity client SDK for RPlay Games and StoryEngine game APIs.",
   "hideInEditor": false,
   "unity": "2022.3",
+  "licensesUrl": "https://github.com/r-play/rplay-games-unity-sdk/blob/main/LICENSE.md",
   "author": {
-    "name": "RPlay"
+    "name": "PLAX INC.",
+    "url": "https://rplay.live"
   },
   "dependencies": {
     "com.unity.nuget.newtonsoft-json": "3.2.1",
