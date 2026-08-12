@@ -1,0 +1,17 @@
+{
+  "name": "RPlay.Games.Runtime",
+  "rootNamespace": "RPlay.Games",
+  "references": [
+    "Unity.Newtonsoft.Json",
+    "UnityEngine.UI"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

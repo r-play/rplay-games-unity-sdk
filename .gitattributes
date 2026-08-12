@@ -1,0 +1,4 @@
+*.asset whitespace=-trailing-space
+*.meta whitespace=-trailing-space
+*.prefab whitespace=-trailing-space
+*.unity whitespace=-trailing-space

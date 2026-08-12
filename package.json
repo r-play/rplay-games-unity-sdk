@@ -1,0 +1,22 @@
+{
+  "name": "com.rplay.games-sdk",
+  "version": "0.1.0",
+  "displayName": "RPlay Games SDK",
+  "description": "Unity client SDK for RPlay Games and StoryEngine game APIs.",
+  "hideInEditor": false,
+  "unity": "2022.3",
+  "author": {
+    "name": "RPlay"
+  },
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.1",
+    "com.unity.ugui": "1.0.0"
+  },
+  "samples": [
+    {
+      "displayName": "API Playground",
+      "description": "Interactive uGUI scene with controls for every public SDK API.",
+      "path": "Samples~/API Playground"
+    }
+  ]
+}
