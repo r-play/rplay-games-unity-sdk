@@ -17,7 +17,7 @@ RPlay Games와 StoryEngine의 게임 API를 Unity에서 일관된 C# API로 사�
 개발 중인 현재 프로젝트에서는 `Packages/com.rplay.games-sdk` 임베디드 패키지로 포함되어 있습니다. Git 배포 후에는 Unity Package Manager의 Git URL 설치 방식을 사용합니다.
 
 ```text
-https://github.com/r-play/rplay-games-unity-sdk.git#v0.1.0
+https://github.com/r-play/rplay-games-unity-sdk.git#v0.1.1
 ```
 
 ## 초기 설정

@@ -1,6 +1,6 @@
 {
   "name": "com.rplay.games-sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "displayName": "RPlay Games SDK",
   "description": "Unity client SDK for RPlay Games and StoryEngine game APIs.",
   "hideInEditor": false,

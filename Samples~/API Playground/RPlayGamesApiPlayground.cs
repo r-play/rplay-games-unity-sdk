@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Threading.Tasks;
 using RPlay.Games;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace RPlay.Games.Samples
@@ -171,6 +172,8 @@ namespace RPlay.Games.Samples
         // 샘플 씬을 열고 Play하면 저장된 UI 계층을 찾아 레이아웃과 모든 버튼 이벤트를 연결한다.
         private void Awake()
         {
+            EnsureEventSystemInputModule();
+
             // 편집 중에는 Canvas를 숨겨 Game 뷰를 비워 두고, 실행할 때만 샘플 UI를 표시한다.
             GetComponent<Canvas>().enabled = true;
             ConfigureLayout();
@@ -592,6 +595,36 @@ namespace RPlay.Games.Samples
                     },
                 }
             );
+        }
+
+        // 샘플이 특정 입력 패키지를 강제하지 않도록 현재 프로젝트에 맞는 UI 입력 모듈을 실행 시 연결한다.
+        private static void EnsureEventSystemInputModule()
+        {
+            var eventSystem = EventSystem.current
+                ?? UnityEngine.Object.FindObjectOfType<EventSystem>(true);
+            if (eventSystem == null)
+            {
+                var eventSystemObject = new GameObject("EventSystem", typeof(EventSystem));
+                eventSystem = eventSystemObject.GetComponent<EventSystem>();
+            }
+
+            if (eventSystem.GetComponent<BaseInputModule>() != null)
+            {
+                return;
+            }
+
+#if ENABLE_INPUT_SYSTEM
+            var inputSystemModule = Type.GetType(
+                "UnityEngine.InputSystem.UI.InputSystemUIInputModule, Unity.InputSystem"
+            );
+            if (inputSystemModule != null)
+            {
+                eventSystem.gameObject.AddComponent(inputSystemModule);
+                return;
+            }
+#endif
+
+            eventSystem.gameObject.AddComponent<StandaloneInputModule>();
         }
 
         // 씬의 InputField 자식 참조를 연결하고 API를 바로 시험할 수 있는 기본값을 채운다.
