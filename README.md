@@ -1,71 +1,142 @@
 # RPlay Games Unity SDK
 
-RPlay Games와 StoryEngine의 게임 API를 Unity에서 일관된 C# API로 사용하는 UPM 패키지입니다.
+RPlay Games와 StoryEngine의 로그인, 게임 데이터, 리더보드 및 재화 API를 Unity에서 사용할 수 있는 SDK입니다.
 
-## 지원 환경
+## 요구 사항
 
 - Unity 2022.3 LTS 이상
 - WebGL
 - Windows, macOS, Linux 데스크톱 빌드
-- Unity Editor
-- RPlay 및 StoryEngine 운영 환경
-
-이 SDK에는 Sandbox나 공개 Mock 환경이 없습니다. API 호출로 생성된 저장 데이터, 리더보드, 코인 및 크레딧 소비는 운영 데이터에 반영됩니다.
 
 ## 설치
 
-개발 중인 현재 프로젝트에서는 `Packages/com.rplay.games-sdk` 임베디드 패키지로 포함되어 있습니다. Git 배포 후에는 Unity Package Manager의 Git URL 설치 방식을 사용합니다.
+1. Unity 메뉴에서 `Window > Package Manager`를 엽니다.
+2. 왼쪽 위의 `+` 버튼을 누르고 `Install package from git URL...`을 선택합니다.
+3. 아래 URL을 입력하고 `Install`을 누릅니다.
 
 ```text
 https://github.com/r-play/rplay-games-unity-sdk.git#v0.1.2
 ```
 
-## 초기 설정
+## 샘플 실행
 
-1. Project 창에서 `Create > RPlay > Games Settings`를 선택합니다.
-2. RPlay 게임 관리 화면에서 확인한 `GameOid`를 입력합니다.
-3. 게임 시작 코드에서 설정 에셋으로 SDK를 초기화합니다.
+전체 API를 바로 확인하려면 패키지에 포함된 API Playground를 사용하세요.
+
+1. Package Manager에서 `RPlay Games SDK`를 선택합니다.
+2. `Samples`의 `API Playground`에서 `Import`를 누릅니다.
+3. Project 창에서 `Samples/RPlay Games SDK/0.1.2/API Playground` 폴더를 엽니다.
+4. `RPlayGamesApiPlayground` 씬을 열고 Play 버튼을 누릅니다.
+
+샘플에는 테스트용 `GameOid`가 설정되어 있습니다. 실제 게임에서는 해당 게임의 `GameOid`로 교체하세요.
+
+## 시작하기
+
+### 1. 설정 에셋 만들기
+
+1. RPlay에서 게임을 만든 뒤 게임 관리 화면에서 `GameOid`를 확인합니다.
+2. Unity의 Project 창에서 마우스 오른쪽 버튼을 누르고 `Create > RPlay > Games Settings`를 선택합니다.
+3. 생성된 `RPlayGamesSettings` 에셋의 `Game Oid`에 확인한 값을 입력합니다.
+
+### 2. 로그인 버튼 연결하기
+
+아래 스크립트를 GameObject에 추가하고 `Settings`에 생성한 설정 에셋을 연결합니다. 그다음 UI Button의 `On Click()`에 `Login`을 등록하세요.
 
 ```csharp
+using System;
 using RPlay.Games;
 using UnityEngine;
 
-public sealed class GameBootstrap : MonoBehaviour
+public sealed class RPlayLoginButton : MonoBehaviour
 {
     [SerializeField] private RPlayGamesSettings settings;
 
-    private async void Start()
+    public async void Login()
     {
-        await RPlayGames.InitializeAsync(settings);
-        await RPlayGames.LoginAsync();
+        try
+        {
+            if (!RPlayGames.IsInitialized)
+            {
+                await RPlayGames.InitializeAsync(settings);
+            }
+
+            if (!RPlayGames.IsAuthenticated)
+            {
+                await RPlayGames.LoginAsync();
+            }
+            Debug.Log("RPlay Games 로그인 완료");
+        }
+        catch (Exception exception)
+        {
+            Debug.LogException(exception);
+        }
+    }
+
+    public async void Logout()
+    {
+        try
+        {
+            await RPlayGames.LogoutAsync();
+            Debug.Log("RPlay Games 로그아웃 완료");
+        }
+        catch (Exception exception)
+        {
+            Debug.LogException(exception);
+        }
     }
 }
 ```
 
-WebGL에서는 게시 과정에서 자동 주입된 `window.RplayGameSDK`의 게임 토큰을 사용합니다. 별도의 로그인 창이나 Unity 결제 확인 UI를 만들지 않고 현재 RPlay 게임 페이지의 인증 및 팝업 흐름을 그대로 사용합니다.
+Editor와 데스크톱 빌드에서는 `LoginAsync()`를 호출하면 브라우저가 열립니다. 사용자가 RPlay 또는 StoryEngine으로 로그인하면 SDK가 선택한 플랫폼을 실행 세션 동안 유지합니다.
 
-Editor와 Standalone에서는 RPlay Games 연결 화면이 열립니다. 사용자가 RPlay 또는 StoryEngine 로그인을 선택하면 해당 플랫폼에서 PKCE 로그인을 진행하고, 게임 실행 세션 동안만 토큰을 메모리에 보관합니다. 웹사이트 전체 권한을 가진 로그인 토큰은 게임에 저장하지 않습니다.
+WebGL에서는 RPlay 게임 페이지의 로그인 정보를 사용하므로 별도의 브라우저 로그인 창을 열지 않습니다.
 
-게임 연결 JWT 자체에는 기존 WebGL 게임 JWT와 동일하게 만료 시각을 넣지 않습니다. 결제 승인용 `connectAccessToken`은 별도로 짧게 유지되며, 로그아웃하거나 서버의 실행 세션이 종료되면 더 이상 사용할 수 없습니다.
+## 주요 API
+
+| 기능 | API |
+| --- | --- |
+| 초기화 및 로그인 | `InitializeAsync`, `LoginAsync`, `LogoutAsync` |
+| 사용자 | `VerifyUserAsync`, `GetUserInfoAsync` |
+| 충전 및 소비 | `RequestChargeAsync`, `ConsumeAsync` |
+| 게임 데이터 | `LoadDataAsync`, `SetDataAsync`, `DeleteDataAsync`, `DeleteAllDataAsync` |
+| 리더보드 | `SetScoreAsync`, `IncrementScoreAsync`, `GetMyRankAsync`, `GetTopRanksAsync`, `GetRanksAroundMeAsync` |
+
+게임 API를 호출하기 전에 SDK 초기화와 인증이 완료되어야 합니다. 현재 상태는 `RPlayGames.IsInitialized`와 `RPlayGames.IsAuthenticated`로 확인할 수 있습니다.
 
 ## 사용자 정보
+
+```csharp
+var user = await RPlayGames.GetUserInfoAsync();
+user.EnsureSuccess();
+
+Debug.Log($"닉네임: {user.Nickname}");
+```
+
+RPlay 계정의 잔액은 `CoinBalance`, StoryEngine 계정의 잔액은 `CreditBalance`에서 확인할 수 있습니다. 현재 연결된 플랫폼은 `RPlayGames.ConnectedPlatform`으로 확인하세요.
+
+게임의 플레이 권한만 확인하려면 `VerifyUserAsync()`를 사용합니다.
 
 ```csharp
 var access = await RPlayGames.VerifyUserAsync();
 if (!access.Success)
 {
     Debug.LogWarning($"플레이 권한 확인 실패: {access.ErrorCode}");
-    return;
 }
-
-var user = await RPlayGames.GetUserInfoAsync();
-user.EnsureSuccess();
-Debug.Log($"{user.Nickname}: {user.CoinBalance}");
 ```
 
-HTTP 200 응답이어도 `Success`가 `false`일 수 있으므로 항상 응답 본문을 확인해야 합니다. `EnsureSuccess()`를 호출하면 실패 응답을 `RPlayApiException`으로 변환할 수 있습니다.
+## 게임 데이터
 
-## 저장 데이터
+```csharp
+using Newtonsoft.Json;
+
+public sealed class PlayerSave
+{
+    [JsonProperty("chapter")]
+    public int Chapter { get; set; }
+
+    [JsonProperty("hp")]
+    public int Hp { get; set; }
+}
+```
 
 ```csharp
 await RPlayGames.SetDataAsync("chapter", 3);
@@ -73,13 +144,14 @@ await RPlayGames.SetDataAsync(new { chapter = 3, hp = 80 });
 
 var save = await RPlayGames.LoadDataAsync<PlayerSave>();
 save.EnsureSuccess();
-var playerSave = save.Data;
+
+Debug.Log($"챕터: {save.Data.Chapter}, HP: {save.Data.Hp}");
 
 await RPlayGames.DeleteDataAsync("chapter");
 await RPlayGames.DeleteAllDataAsync();
 ```
 
-벌크 저장은 기존 데이터와 얕게 병합됩니다. SDK는 같은 실행 세션의 저장 변경 요청을 직렬화하지만, 서로 다른 기기에서 동시에 저장한 값의 충돌까지 해결하지는 않습니다. `_id`는 서버 보호 키이며 SDK에서 수정할 수 없습니다. `DeleteAllDataAsync`는 저장 데이터만 비우고 리더보드 기록은 보존합니다.
+`SetDataAsync(object)`는 전달한 필드를 기존 데이터에 추가하거나 덮어씁니다. `DeleteAllDataAsync()`는 게임 데이터만 삭제하며 리더보드 기록은 유지합니다.
 
 ## 리더보드
 
@@ -90,9 +162,24 @@ await RPlayGames.IncrementScoreAsync(50);
 var mine = await RPlayGames.GetMyRankAsync();
 var top = await RPlayGames.GetTopRanksAsync(limit: 20);
 var around = await RPlayGames.GetRanksAroundMeAsync(range: 5);
+
+mine.EnsureSuccess();
+top.EnsureSuccess();
+around.EnsureSuccess();
 ```
 
-## 코인 및 크레딧 소비
+`GetTopRanksAsync()`의 `limit`과 `GetRanksAroundMeAsync()`의 `range`는 최대 50입니다.
+
+## 재화 충전 및 소비
+
+충전 화면을 열려면 다음 API를 호출합니다.
+
+```csharp
+var charge = await RPlayGames.RequestChargeAsync();
+charge.EnsureSuccess();
+```
+
+재화를 소비할 때는 금액과 표시할 아이템 이름을 전달합니다. `amount`는 RPlay와 StoryEngine 모두 게임 코인 단위입니다.
 
 ```csharp
 var result = await RPlayGames.ConsumeAsync(
@@ -101,22 +188,34 @@ var result = await RPlayGames.ConsumeAsync(
     options: new RPlayConsumeOptions
     {
         ItemDescription = "현재 위치에서 이어서 플레이합니다.",
-        SkipConfirmation = false,
         Metadata = new { stage = 7 }
     }
 );
+
+result.EnsureSuccess();
 ```
 
-- 기본값에서는 Editor와 Standalone에 RPlay 공용 소비 확인 UI가 표시되며, 잔액이 부족하면 코인 또는 크레딧 부족 안내가 표시됩니다.
-- `SkipConfirmation = true`이면 SDK의 소비 관련 팝업이 전혀 표시되지 않으며 운영 코인 또는 크레딧이 즉시 차감될 수 있습니다.
-- StoryEngine의 `amount` 단위는 게임 코인이며 실제 크레딧 소비량은 현재 서버 계약에 따라 `amount × 14`입니다.
-- WebGL에서는 기존 웹 팝업이 소비 확인을 처리합니다.
+Editor와 데스크톱 빌드에서는 SDK가 소비 확인과 잔액 부족 안내를 표시합니다. WebGL에서는 게임 페이지의 팝업을 사용합니다.
 
-`RequestChargeAsync()`는 WebGL에서 기존 게임 페이지의 충전 팝업을 열고, Editor와 Standalone에서는 로그인할 때 선택한 플랫폼의 웹 충전 화면을 시스템 브라우저로 엽니다.
+`SkipConfirmation = true`로 설정하면 SDK의 소비 관련 팝업을 모두 생략합니다.
 
-## 오류 처리
+## 응답 및 오류 처리
 
-네트워크 실패, 잘못된 JSON 등 응답 자체를 처리할 수 없는 경우 `RPlayApiException`이 발생합니다. 서버가 정상적으로 반환한 비즈니스 실패는 응답의 `Success`, `Status`, `ErrorCode`, `Message`로 확인합니다.
+API 응답의 `Success`로 요청 성공 여부를 확인할 수 있습니다. 실패한 응답에서 `EnsureSuccess()`를 호출하면 `RPlayApiException`이 발생합니다.
+
+```csharp
+try
+{
+    var user = await RPlayGames.GetUserInfoAsync();
+    user.EnsureSuccess();
+}
+catch (RPlayApiException exception)
+{
+    Debug.LogError($"RPlay Games API 오류: {exception.ErrorCode}");
+}
+```
+
+응답을 직접 처리하려면 `Success`, `Status`, `ErrorCode`, `Message`를 사용하세요.
 
 ## 라이선스
 
