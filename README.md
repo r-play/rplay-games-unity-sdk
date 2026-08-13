@@ -1,8 +1,24 @@
-# RPlay Games Unity SDK
+<div align="center">
+  <h1>RPlay Games Unity SDK</h1>
+  <img src="Documentation~/images/rplay-games-banner.png" alt="RPlay Games" width="100%">
+  <p>RPlay Games와 StoryEngine의 로그인, 게임 데이터, 리더보드 및 플랫폼 코인·크레딧 API를 Unity에서 사용할 수 있는 SDK입니다.</p>
+</div>
 
-![RPlay Games](Documentation~/images/rplay-games-banner.png)
+## 목차
 
-RPlay Games와 StoryEngine의 로그인, 게임 데이터, 리더보드 및 플랫폼 코인·크레딧 API를 Unity에서 사용할 수 있는 SDK입니다.
+- [요구 사항](#요구-사항)
+- [설치](#설치)
+- [샘플 실행](#샘플-실행)
+- [시작하기](#시작하기)
+  - [설정 에셋 만들기](#1-설정-에셋-만들기)
+  - [로그인 버튼 연결하기](#2-로그인-버튼-연결하기)
+- [SDK 상태 및 로그인](#sdk-상태-및-로그인)
+- [사용자 정보](#사용자-정보)
+- [게임 데이터 저장 및 불러오기](#게임-데이터-저장-및-불러오기)
+- [리더보드](#리더보드)
+- [RPlay 코인 및 StoryEngine 크레딧](#rplay-코인-및-storyengine-크레딧)
+- [응답 및 오류 처리](#응답-및-오류-처리)
+- [라이선스](#라이선스)
 
 ## 요구 사항
 
