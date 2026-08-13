@@ -1,5 +1,12 @@
 # 변경 기록
 
+## 0.1.3 - 2026-08-13
+
+- 데스크톱 브라우저 연결 URL에는 콜백 포트, PKCE challenge와 state만 전달하도록 바꿔 WAF가 전체 loopback URI를 차단하는 문제를 방지했습니다.
+- 로그인 승인은 인증 code만 발급하고, 토큰 교환은 code와 PKCE verifier만 전송하는 최소 계약으로 변경했습니다.
+- 세션 갱신은 refresh token만 보내 연결 토큰과 만료 시간만 갱신하며, 로그아웃도 만료될 수 있는 access token 대신 refresh token만 사용하도록 변경했습니다.
+- 로컬과 운영 환경 모두 새 탭의 loopback 이동으로 로그인 결과를 전달하고, 전달이 끝난 탭은 자동으로 닫도록 통일했습니다.
+
 ## 0.1.2 - 2026-08-13
 
 - PLAX INC. 저작권 표기의 MIT License를 추가했습니다.

@@ -70,19 +70,13 @@ namespace RPlay.Games.Internal
                 )
             )
             using (
-                var callback = new RPlayLoopbackCallback(
-                    settings.WebOrigin,
-                    settings.StoryEngineWebOrigin
-                )
+                var callback = new RPlayLoopbackCallback()
             )
             {
                 callback.Start();
                 var query = RPlayApiClient.BuildQuery(
-                    ("response_type", "code"),
-                    ("client_type", "unity"),
-                    ("redirect_uri", callback.RedirectUri),
+                    ("callback_port", callback.Port),
                     ("code_challenge", challenge),
-                    ("code_challenge_method", "S256"),
                     ("state", state)
                 );
 
@@ -128,8 +122,6 @@ namespace RPlay.Games.Internal
                     {
                         code = result.Code,
                         codeVerifier = verifier,
-                        redirectUri = callback.RedirectUri,
-                        gameOid = settings.GameOid,
                     },
                     loginCancellation.Token
                 );
@@ -158,38 +150,47 @@ namespace RPlay.Games.Internal
         }
 
         internal async Task<RPlayConnectSession> RefreshAsync(
-            string refreshToken,
+            RPlayConnectSession session,
             CancellationToken cancellationToken
         )
         {
-            var token = await apiClient.SendConnectAuthAsync<RPlayConnectTokenResponse>(
+            var token = await apiClient.SendConnectAuthAsync<RPlayConnectRefreshResponse>(
                 "/refresh",
-                new
-                {
-                    refreshToken,
-                    gameOid = settings.GameOid,
-                },
+                new { refreshToken = session.RefreshToken },
                 cancellationToken
             );
             token.EnsureSuccess();
-            return ToSession(token);
+            if (
+                string.IsNullOrWhiteSpace(token.ConnectAccessToken)
+                || string.IsNullOrWhiteSpace(token.RefreshToken)
+            )
+            {
+                throw new RPlayApiException(
+                    "로그인 서버가 필요한 연결 토큰을 반환하지 않았습니다.",
+                    "INVALID_TOKEN_RESPONSE",
+                    token.HttpStatusCode,
+                    token.RawJson
+                );
+            }
+
+            // 갱신 응답에는 연결 토큰만 포함되므로 게임 토큰과 플랫폼은 기존 세션 값을 유지합니다.
+            session.ConnectAccessToken = token.ConnectAccessToken;
+            session.RefreshToken = token.RefreshToken;
+            session.ExpiresAt = DateTimeOffset.UtcNow.AddSeconds(
+                Math.Max(60, token.ExpiresIn)
+            );
+            return session;
         }
 
         internal Task<RPlayResponse> LogoutAsync(
-            string connectAccessToken,
             string refreshToken,
             CancellationToken cancellationToken
         )
         {
             return apiClient.SendConnectAuthAsync<RPlayResponse>(
                 "/logout",
-                new
-                {
-                    gameOid = settings.GameOid,
-                    refreshToken,
-                },
-                cancellationToken,
-                connectAccessToken
+                new { refreshToken },
+                cancellationToken
             );
         }
 
@@ -246,30 +247,15 @@ namespace RPlay.Games.Internal
 
     internal sealed class RPlayLoopbackCallback : IDisposable
     {
-        private readonly HashSet<string> allowedOrigins;
         private TcpListener listener;
 
-        internal string RedirectUri { get; private set; }
-
-        internal RPlayLoopbackCallback(params string[] allowedOrigins)
-        {
-            this.allowedOrigins = new HashSet<string>(
-                StringComparer.OrdinalIgnoreCase
-            );
-            foreach (var origin in allowedOrigins)
-            {
-                this.allowedOrigins.Add(
-                    new Uri(origin).GetLeftPart(UriPartial.Authority)
-                );
-            }
-        }
+        internal int Port { get; private set; }
 
         internal void Start()
         {
             listener = new TcpListener(IPAddress.Loopback, 0);
             listener.Start(1);
-            var port = ((IPEndPoint)listener.LocalEndpoint).Port;
-            RedirectUri = "http://127.0.0.1:" + port + "/callback";
+            Port = ((IPEndPoint)listener.LocalEndpoint).Port;
         }
 
         internal async Task<RPlayLoopbackResult> WaitAsync(
@@ -300,11 +286,10 @@ namespace RPlay.Games.Internal
                     using (var reader = new StreamReader(stream, Encoding.ASCII, false, 1024, true))
                     {
                         string requestLine;
-                        IReadOnlyDictionary<string, string> headers;
                         try
                         {
                             requestLine = await reader.ReadLineAsync();
-                            headers = await ReadHeadersAsync(reader);
+                            await ReadHeadersAsync(reader);
                         }
                         catch (IOException) when (cancellationToken.IsCancellationRequested)
                         {
@@ -316,31 +301,15 @@ namespace RPlay.Games.Internal
                         }
 
                         var method = GetRequestMethod(requestLine);
-                        var origin = GetValue(headers, "Origin");
-                        if (string.Equals(method, "OPTIONS", StringComparison.Ordinal))
-                        {
-                            await WritePreflightResponseAsync(stream, origin);
-                            continue;
-                        }
-
                         if (!string.Equals(method, "GET", StringComparison.Ordinal))
                         {
                             await WriteEmptyResponseAsync(stream, "405 Method Not Allowed");
                             continue;
                         }
 
-                        if (
-                            !string.IsNullOrWhiteSpace(origin)
-                            && !IsAllowedOrigin(origin)
-                        )
-                        {
-                            await WriteEmptyResponseAsync(stream, "403 Forbidden");
-                            continue;
-                        }
-
                         var target = GetRequestTarget(requestLine);
                         var query = ParseQuery(target);
-                        await WriteBrowserResponseAsync(stream, origin);
+                        await WriteBrowserResponseAsync(stream);
 
                         return new RPlayLoopbackResult
                         {
@@ -393,27 +362,14 @@ namespace RPlay.Games.Internal
             return parts.Length >= 1 ? parts[0] : string.Empty;
         }
 
-        private static async Task<IReadOnlyDictionary<string, string>> ReadHeadersAsync(
-            StreamReader reader
-        )
+        private static async Task ReadHeadersAsync(StreamReader reader)
         {
-            var headers = new Dictionary<string, string>(
-                StringComparer.OrdinalIgnoreCase
-            );
             while (true)
             {
                 var line = await reader.ReadLineAsync();
                 if (string.IsNullOrEmpty(line))
                 {
-                    return headers;
-                }
-
-                var separator = line.IndexOf(':');
-                if (separator > 0)
-                {
-                    headers[line.Substring(0, separator).Trim()] = line
-                        .Substring(separator + 1)
-                        .Trim();
+                    return;
                 }
             }
         }
@@ -448,57 +404,22 @@ namespace RPlay.Games.Internal
             return values.TryGetValue(key, out var value) ? value : null;
         }
 
-        private bool IsAllowedOrigin(string origin)
-        {
-            return !string.IsNullOrWhiteSpace(origin)
-                && allowedOrigins.Contains(origin);
-        }
-
-        private async Task WritePreflightResponseAsync(
-            NetworkStream stream,
-            string origin
-        )
-        {
-            if (!IsAllowedOrigin(origin))
-            {
-                await WriteEmptyResponseAsync(stream, "403 Forbidden");
-                return;
-            }
-
-            await WriteEmptyResponseAsync(
-                stream,
-                "204 No Content",
-                "Access-Control-Allow-Origin: "
-                    + origin
-                    + "\r\nAccess-Control-Allow-Methods: GET, OPTIONS"
-                    + "\r\nAccess-Control-Allow-Private-Network: true"
-                    + "\r\nVary: Origin"
-            );
-        }
-
         private static async Task WriteEmptyResponseAsync(
             NetworkStream stream,
-            string status,
-            string extraHeaders = null
+            string status
         )
         {
             var header = Encoding.ASCII.GetBytes(
                 "HTTP/1.1 "
                     + status
                     + "\r\nContent-Length: 0\r\n"
-                    + (string.IsNullOrWhiteSpace(extraHeaders)
-                        ? string.Empty
-                        : extraHeaders + "\r\n")
                     + "Connection: close\r\n\r\n"
             );
             await stream.WriteAsync(header, 0, header.Length);
             await stream.FlushAsync();
         }
 
-        private async Task WriteBrowserResponseAsync(
-            NetworkStream stream,
-            string origin
-        )
+        private static async Task WriteBrowserResponseAsync(NetworkStream stream)
         {
             var title = WebUtility.HtmlEncode(
                 RPlayLocalization.Get("login_completed_title")
@@ -522,11 +443,6 @@ namespace RPlay.Games.Internal
                 "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: "
                     + body.Length
                     + "\r\n"
-                    + (IsAllowedOrigin(origin)
-                        ? "Access-Control-Allow-Origin: "
-                            + origin
-                            + "\r\nAccess-Control-Allow-Private-Network: true\r\nVary: Origin\r\n"
-                        : string.Empty)
                     + "Connection: close\r\n\r\n"
             );
             await stream.WriteAsync(header, 0, header.Length);

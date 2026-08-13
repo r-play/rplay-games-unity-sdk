@@ -15,7 +15,7 @@ RPlay Games와 StoryEngine의 로그인, 게임 데이터, 리더보드 및 플�
 3. 아래 URL을 입력하고 `Install`을 누릅니다.
 
 ```text
-https://github.com/r-play/rplay-games-unity-sdk.git#v0.1.2
+https://github.com/r-play/rplay-games-unity-sdk.git#v0.1.3
 ```
 
 ## 샘플 실행
@@ -24,7 +24,7 @@ https://github.com/r-play/rplay-games-unity-sdk.git#v0.1.2
 
 1. Package Manager에서 `RPlay Games SDK`를 선택합니다.
 2. `Samples`의 `API Playground`에서 `Import`를 누릅니다.
-3. Project 창에서 `Samples/RPlay Games SDK/0.1.2/API Playground` 폴더를 엽니다.
+3. Project 창에서 `Samples/RPlay Games SDK/0.1.3/API Playground` 폴더를 엽니다.
 4. `RPlayGamesApiPlayground` 씬을 열고 Play 버튼을 누릅니다.
 
 샘플에는 테스트용 `GameOid`가 설정되어 있습니다. 실제 게임에서는 해당 게임의 `GameOid`로 교체하세요.

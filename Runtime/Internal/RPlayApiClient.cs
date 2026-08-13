@@ -113,8 +113,7 @@ namespace RPlay.Games.Internal
         internal Task<TResponse> SendConnectAuthAsync<TResponse>(
             string path,
             object body,
-            CancellationToken cancellationToken,
-            string connectAccessToken = null
+            CancellationToken cancellationToken
         )
             where TResponse : RPlayResponse
         {
@@ -123,7 +122,7 @@ namespace RPlay.Games.Internal
                 UnityWebRequest.kHttpVerbPOST,
                 body,
                 null,
-                connectAccessToken,
+                null,
                 settings.RequestTimeoutSeconds,
                 cancellationToken
             );
@@ -244,6 +243,18 @@ namespace RPlay.Games.Internal
 
         [JsonProperty("platformType")]
         public string PlatformType { get; set; }
+    }
+
+    internal sealed class RPlayConnectRefreshResponse : RPlayResponse
+    {
+        [JsonProperty("connectAccessToken")]
+        public string ConnectAccessToken { get; set; }
+
+        [JsonProperty("refreshToken")]
+        public string RefreshToken { get; set; }
+
+        [JsonProperty("expiresIn")]
+        public int ExpiresIn { get; set; }
     }
 
     internal sealed class RPlayJsonResponse : RPlayResponse

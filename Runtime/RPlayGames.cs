@@ -122,17 +122,12 @@ namespace RPlay.Games
                 return;
             }
 
-            var connectAccessToken = connectSession?.ConnectAccessToken;
             var refreshToken = connectSession?.RefreshToken;
             try
             {
-                if (
-                    !string.IsNullOrWhiteSpace(connectAccessToken)
-                    || !string.IsNullOrWhiteSpace(refreshToken)
-                )
+                if (!string.IsNullOrWhiteSpace(refreshToken))
                 {
                     await connectAuthenticator.LogoutAsync(
-                        connectAccessToken,
                         refreshToken,
                         cancellationToken
                     );
@@ -729,7 +724,7 @@ namespace RPlay.Games
                 }
 
                 connectSession = await connectAuthenticator.RefreshAsync(
-                    connectSession.RefreshToken,
+                    connectSession,
                     cancellationToken
                 );
                 apiClient.SetSession(
