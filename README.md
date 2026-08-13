@@ -1,7 +1,7 @@
 <div align="center">
   <h1>RPlay Games Unity SDK</h1>
   <img src="Documentation~/images/rplay-games-banner.png" alt="RPlay Games" width="100%">
-  <p>RPlay Games와 StoryEngine의 로그인, 게임 데이터, 리더보드 및 플랫폼 코인·크레딧 API를 Unity에서 사용할 수 있는 SDK입니다.</p>
+  <p><a href="https://rplay.live/p/game">RPlay Games</a>와 <a href="https://storyengine.live/p/game">StoryEngine</a>의 로그인, 게임 데이터, 리더보드 및 플랫폼 코인·크레딧 API를 Unity에서 사용할 수 있는 SDK입니다.</p>
 </div>
 
 ## 목차
