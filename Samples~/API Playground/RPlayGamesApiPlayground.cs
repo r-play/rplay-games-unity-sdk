@@ -32,6 +32,8 @@ namespace RPlay.Games.Samples
             DataTitle,
             LeaderboardTitle,
             CurrencyTitle,
+            RPlayCoins,
+            StoryEngineCredits,
             LoginSubtitle,
             Login,
             Logout,
@@ -76,12 +78,14 @@ namespace RPlay.Games.Samples
             new Dictionary<SampleText, string[]>
             {
                 { SampleText.Header, new[] { "RPlay Games Unity SDK API 샘플", "RPlay Games Unity SDK API Sample", "RPlay Games Unity SDK API サンプル", "Ejemplo de API de RPlay Games Unity SDK", "RPlay Games Unity SDK API 範例", "RPlay Games Unity SDK API 示例" } },
-                { SampleText.Warning, new[] { "Production API를 사용합니다. 저장 데이터, 리더보드와 재화 요청이 실제 계정에 반영됩니다.", "This sample uses the Production API. Saved data, leaderboard scores, and currency requests affect the current account.", "Production APIを使用します。保存データ、ランキング、通貨リクエストは実際のアカウントに反映されます。", "Esta muestra usa la API de producción. Los datos, la clasificación y las solicitudes de moneda afectan a la cuenta real.", "此範例使用 Production API。儲存資料、排行榜與貨幣請求會套用至實際帳號。", "此示例使用 Production API。存档数据、排行榜与货币请求会应用到实际账号。" } },
+                { SampleText.Warning, new[] { "Production API를 사용합니다. 저장 데이터, 리더보드와 코인 및 크레딧 요청이 실제 계정에 반영됩니다.", "This sample uses the Production API. Saved data, leaderboard scores, and coin or credit requests affect the current account.", "Production APIを使用します。保存データ、ランキング、コインおよびクレジットのリクエストは実際のアカウントに反映されます。", "Esta muestra usa la API de producción. Los datos, la clasificación y las solicitudes de monedas o créditos afectan a la cuenta real.", "此範例使用 Production API。儲存資料、排行榜、金幣與點數請求會套用至實際帳號。", "此示例使用 Production API。存档数据、排行榜、金币与点数请求会应用到实际账号。" } },
                 { SampleText.SessionConnected, new[] { "1. 로그인 및 세션 ({0} 연결됨)", "1. Login and session ({0} connected)", "1. ログインとセッション（{0} 接続済み）", "1. Inicio de sesión y sesión ({0} conectado)", "1. 登入與工作階段（已連接 {0}）", "1. 登录与会话（已连接 {0}）" } },
                 { SampleText.UserTitle, new[] { "2. 사용자 API (검증 / 정보 조회)", "2. User API (verification / profile)", "2. ユーザー API（検証 / 情報取得）", "2. API de usuario (verificación / información)", "2. 使用者 API（驗證 / 資訊查詢）", "2. 用户 API（验证 / 信息查询）" } },
                 { SampleText.DataTitle, new[] { "3. 저장 데이터 API (저장 / 조회 / 삭제)", "3. Saved data API (save / load / delete)", "3. 保存データ API（保存 / 取得 / 削除）", "3. API de datos guardados (guardar / cargar / eliminar)", "3. 儲存資料 API（儲存 / 查詢 / 刪除）", "3. 存档数据 API（保存 / 查询 / 删除）" } },
                 { SampleText.LeaderboardTitle, new[] { "4. 리더보드 API (점수 / 순위)", "4. Leaderboard API (scores / ranks)", "4. ランキング API（スコア / 順位）", "4. API de clasificación (puntuaciones / puestos)", "4. 排行榜 API（分數 / 名次）", "4. 排行榜 API（分数 / 名次）" } },
-                { SampleText.CurrencyTitle, new[] { "5. 재화 API (충전 / 소비)", "5. Currency API (charge / consume)", "5. 通貨 API（チャージ / 消費）", "5. API de moneda (recarga / consumo)", "5. 貨幣 API（儲值 / 消耗）", "5. 货币 API（充值 / 消耗）" } },
+                { SampleText.CurrencyTitle, new[] { "5. {0} API (충전 / 소비)", "5. {0} API (charge / consume)", "5. {0} API（チャージ / 消費）", "5. API de {0} (recarga / consumo)", "5. {0} API（儲值 / 消耗）", "5. {0} API（充值 / 消耗）" } },
+                { SampleText.RPlayCoins, new[] { "RPlay 코인", "RPlay Coins", "RPlayコイン", "monedas de RPlay", "RPlay 金幣", "RPlay 金币" } },
+                { SampleText.StoryEngineCredits, new[] { "StoryEngine 크레딧", "StoryEngine Credits", "StoryEngineクレジット", "créditos de StoryEngine", "StoryEngine 點數", "StoryEngine 点数" } },
                 { SampleText.LoginSubtitle, new[] { "Unity SDK API 테스트", "Unity SDK API Playground", "Unity SDK API テスト", "Pruebas de API con Unity SDK", "Unity SDK API 測試", "Unity SDK API 测试" } },
                 { SampleText.Login, new[] { "브라우저로 로그인", "Log in with browser", "ブラウザーでログイン", "Iniciar sesión en el navegador", "在瀏覽器中登入", "在浏览器中登录" } },
                 { SampleText.Logout, new[] { "로그아웃", "Log out", "ログアウト", "Cerrar sesión", "登出", "退出登录" } },
@@ -103,12 +107,12 @@ namespace RPlay.Games.Samples
                 { SampleText.MyRank, new[] { "내 순위", "My rank", "自分の順位", "Mi puesto", "我的名次", "我的名次" } },
                 { SampleText.TopRanks, new[] { "상위 순위", "Top ranks", "上位ランキング", "Mejores puestos", "排行榜前段", "排行榜前列" } },
                 { SampleText.AroundRanks, new[] { "내 주변 순위", "Ranks around me", "自分の周辺順位", "Puestos a mi alrededor", "我的周邊名次", "我的周边名次" } },
-                { SampleText.ConsumeAmount, new[] { "소비 금액", "Amount to consume", "消費額", "Cantidad a consumir", "消耗金額", "消耗金额" } },
+                { SampleText.ConsumeAmount, new[] { "소비 금액 (RPlay 코인 기준)", "Amount (in RPlay Coins)", "消費額（RPlayコイン基準）", "Importe (en monedas de RPlay)", "消耗金額（以 RPlay 金幣為準）", "消耗金额（以 RPlay 金币为准）" } },
                 { SampleText.ItemName, new[] { "아이템 이름", "Item name", "アイテム名", "Nombre del objeto", "道具名稱", "道具名称" } },
                 { SampleText.ItemDescription, new[] { "아이템 설명", "Item description", "アイテム説明", "Descripción del objeto", "道具說明", "道具说明" } },
-                { SampleText.SkipConfirmation, new[] { "SDK 소비 팝업 생략", "Skip SDK consume popups", "SDK の消費ポップアップを省略", "Omitir ventanas de consumo del SDK", "略過 SDK 消耗彈窗", "跳过 SDK 消耗弹窗" } },
-                { SampleText.OpenCharge, new[] { "충전 화면 열기", "Open charge screen", "チャージ画面を開く", "Abrir pantalla de recarga", "開啟儲值畫面", "打开充值页面" } },
-                { SampleText.Consume, new[] { "재화 소비", "Consume currency", "通貨を消費", "Consumir moneda", "消耗貨幣", "消耗货币" } },
+                { SampleText.SkipConfirmation, new[] { "소비 확인 팝업 생략", "Skip confirmation popups", "消費確認ポップアップを省略", "Omitir ventanas de confirmación", "略過消耗確認彈窗", "跳过消耗确认弹窗" } },
+                { SampleText.OpenCharge, new[] { "{0} 충전", "Charge {0}", "{0}をチャージ", "Recargar {0}", "儲值{0}", "充值{0}" } },
+                { SampleText.Consume, new[] { "{0} 소비", "Consume {0}", "{0}を消費", "Consumir {0}", "消耗{0}", "消耗{0}" } },
                 { SampleText.LogTitle, new[] { "API 응답 로그", "API response log", "API レスポンスログ", "Registro de respuestas de API", "API 回應紀錄", "API 响应日志" } },
                 { SampleText.EmptyLog, new[] { "아직 호출 결과가 없습니다.", "No API responses yet.", "API の呼び出し結果はまだありません。", "Aún no hay respuestas de la API.", "尚無 API 呼叫結果。", "暂无 API 调用结果。" } },
                 { SampleText.ClearLog, new[] { "로그 지우기", "Clear log", "ログを消去", "Borrar registro", "清除紀錄", "清除日志" } },
@@ -368,7 +372,7 @@ namespace RPlay.Games.Samples
                 loginLayout.preferredHeight = 52f;
             }
             // SDK를 초기화한 뒤 시스템 브라우저에서 PKCE 로그인을 진행한다.
-            // 성공한 경우에만 사용자·저장 데이터·리더보드·재화 API 버튼을 표시한다.
+            // 성공한 경우에만 사용자·저장 데이터·리더보드·코인/크레딧 API 버튼을 표시한다.
             loginButton.onClick.AddListener(
                 () => RunActionAsync("로그인", LoginAndRevealAsync)
             );
@@ -466,11 +470,11 @@ namespace RPlay.Games.Samples
                 "충전 화면 열기",
                 RequestChargeAsync
             );
-            // 운영 계정의 코인 또는 크레딧을 실제로 소비한다.
+            // 운영 계정의 RPlay 코인 또는 StoryEngine 크레딧을 실제로 소비한다.
             // SDK 소비 팝업 생략이 켜져 있으면 확인 및 잔액 부족 안내 없이 결과만 반환한다.
             BindResponseButton<RPlayConsumeResult>(
                 "CurrencySection/Buttons/ConsumeButton",
-                "재화 소비",
+                "코인/크레딧 소비",
                 ConsumeAsync
             );
 
@@ -577,7 +581,7 @@ namespace RPlay.Games.Samples
             return RPlayGames.RequestChargeAsync();
         }
 
-        // 아이템 정보와 샘플 메타데이터를 포함해 운영 재화 소비 요청을 보낸다.
+        // 아이템 정보와 샘플 메타데이터를 포함해 운영 코인/크레딧 소비 요청을 보낸다.
         // SkipConfirmation은 소비 확인과 잔액 부족 안내를 포함한 SDK 팝업을 모두 생략한다.
         private Task<RPlayConsumeResult> ConsumeAsync()
         {
@@ -1259,6 +1263,11 @@ namespace RPlay.Games.Samples
         // 화면 문구만 선택 언어로 바꾸고 API 호출 기록과 Unity 로그는 한국어로 유지한다.
         private void ApplyLanguage()
         {
+            var currencyName = Localize(
+                RPlayGames.ConnectedPlatform == RPlayPlatform.StoryEngine
+                    ? SampleText.StoryEngineCredits
+                    : SampleText.RPlayCoins
+            );
             SetLocalizedText("Background/Header", SampleText.Header);
             SetLocalizedText("Background/Warning", SampleText.Warning);
             SetLocalizedText(ContentPath + "UserSection/Title", SampleText.UserTitle);
@@ -1267,9 +1276,9 @@ namespace RPlay.Games.Samples
                 ContentPath + "LeaderboardSection/Title",
                 SampleText.LeaderboardTitle
             );
-            SetLocalizedText(
-                ContentPath + "CurrencySection/Title",
-                SampleText.CurrencyTitle
+            FindRequired<Text>(ContentPath + "CurrencySection/Title").text = string.Format(
+                Localize(SampleText.CurrencyTitle),
+                currencyName
             );
 
             SetLocalizedText(ContentPath + "DataSection/DataKeyRow/Label", SampleText.DataKey);
@@ -1364,13 +1373,15 @@ namespace RPlay.Games.Samples
                 "LeaderboardSection/ButtonsSecondary/AroundRanksButton",
                 SampleText.AroundRanks
             );
-            SetLocalizedButton(
-                "CurrencySection/Buttons/RequestChargeButton",
-                SampleText.OpenCharge
+            SetButtonLabel(
+                FindRequired<Button>(
+                    ContentPath + "CurrencySection/Buttons/RequestChargeButton"
+                ),
+                string.Format(Localize(SampleText.OpenCharge), currencyName)
             );
-            SetLocalizedButton(
-                "CurrencySection/Buttons/ConsumeButton",
-                SampleText.Consume
+            SetButtonLabel(
+                FindRequired<Button>(ContentPath + "CurrencySection/Buttons/ConsumeButton"),
+                string.Format(Localize(SampleText.Consume), currencyName)
             );
             SetLocalizedText("Background/LogPanel/Title", SampleText.LogTitle);
             if (logs.Count == 0)

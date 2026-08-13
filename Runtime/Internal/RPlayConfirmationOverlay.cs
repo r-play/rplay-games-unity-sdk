@@ -233,7 +233,7 @@ namespace RPlay.Games.Internal
             );
 
             var amount = prompt.IsStoryEngine
-                ? prompt.Amount * 14d
+                ? prompt.Amount * RPlayGames.StoryEngineCreditsPerRPlayCoin
                 : prompt.Amount;
             var currency = prompt.IsStoryEngine
                 ? RPlayLocalization.Get("credits")

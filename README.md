@@ -1,6 +1,6 @@
 # RPlay Games Unity SDK
 
-RPlay Games와 StoryEngine의 로그인, 게임 데이터, 리더보드 및 재화 API를 Unity에서 사용할 수 있는 SDK입니다.
+RPlay Games와 StoryEngine의 로그인, 게임 데이터, 리더보드 및 플랫폼 코인·크레딧 API를 Unity에서 사용할 수 있는 SDK입니다.
 
 ## 요구 사항
 
@@ -114,7 +114,7 @@ WebGL에서는 RPlay 게임 페이지의 로그인 정보를 사용하므로 별
 | 함수 | 반환형 | 설명 |
 | --- | --- | --- |
 | `VerifyUserAsync()` | `Task<RPlayResponse>` | 현재 계정이 이 게임을 플레이할 수 있는지 확인합니다. |
-| `GetUserInfoAsync()` | `Task<RPlayUserInfo>` | 사용자 식별자, 플랫폼, 닉네임 및 재화 잔액을 불러옵니다. |
+| `GetUserInfoAsync()` | `Task<RPlayUserInfo>` | 사용자 식별자, 플랫폼, 닉네임 및 코인·크레딧 잔액을 불러옵니다. |
 
 ```csharp
 var user = await RPlayGames.GetUserInfoAsync();
@@ -217,14 +217,14 @@ around.EnsureSuccess();
 
 점수 변경 결과는 `RPlayLeaderboardUpdateResult.Entry`, 내 순위 결과는 `RPlayLeaderboardMeResult.Rank`와 `Entry`에서 확인합니다. 목록 조회 결과의 `Entries`에는 각 사용자의 `Rank`, `Score`, `UpdatedAt` 및 닉네임과 프로필 정보가 들어 있습니다.
 
-## 재화 충전 및 소비
+## RPlay 코인 및 StoryEngine 크레딧
 
-RPlay에서는 **코인**, StoryEngine에서는 **크레딧**을 사용합니다. SDK는 로그인할 때 연결된 플랫폼을 기준으로 사용할 재화를 자동으로 선택하므로 게임에서 플랫폼이나 재화 종류를 따로 지정할 필요가 없습니다.
+RPlay에서는 **코인**, StoryEngine에서는 **크레딧**을 사용합니다. SDK는 로그인할 때 연결된 플랫폼을 기준으로 코인 또는 크레딧을 자동으로 선택하므로 게임에서 플랫폼을 따로 지정할 필요가 없습니다.
 
 | 함수 | 반환형 | 설명 |
 | --- | --- | --- |
 | `RequestChargeAsync()` | `Task<RPlayResponse>` | 연결된 플랫폼의 충전 화면을 엽니다. 반환값으로 화면을 정상적으로 요청했는지 확인할 수 있습니다. |
-| `ConsumeAsync(amount, itemName, options)` | `Task<RPlayConsumeResult>` | 지정한 아이템의 재화 소비를 요청하고 거래 결과와 남은 잔액을 반환합니다. |
+| `ConsumeAsync(amount, itemName, options)` | `Task<RPlayConsumeResult>` | 지정한 아이템의 코인 또는 크레딧 소비를 요청하고 거래 결과와 남은 잔액을 반환합니다. |
 
 충전 화면을 열려면 다음 API를 호출합니다.
 
@@ -235,7 +235,7 @@ charge.EnsureSuccess();
 
 `RequestChargeAsync()`는 연결된 플랫폼에 맞는 코인 또는 크레딧 충전 화면을 엽니다.
 
-재화를 소비할 때는 금액과 표시할 아이템 이름을 전달합니다. `amount`는 두 플랫폼 모두 RPlay 코인 단위로 입력합니다. RPlay에서는 해당 금액의 코인이 소비되고, StoryEngine에서는 플랫폼의 환산 기준에 따라 크레딧으로 변환되어 소비됩니다. 크레딧 금액은 SDK와 서버가 계산하므로 게임에서 직접 환산하지 않습니다.
+코인 또는 크레딧을 소비할 때는 금액과 표시할 아이템 이름을 전달합니다. `amount`는 두 플랫폼 모두 RPlay 코인 단위로 입력합니다. RPlay에서는 해당 금액의 코인이 소비되고, StoryEngine에서는 플랫폼의 환산 기준에 따라 크레딧으로 변환되어 소비됩니다. 크레딧 금액은 SDK와 서버가 계산하므로 게임에서 직접 환산하지 않습니다.
 
 ```csharp
 var result = await RPlayGames.ConsumeAsync(

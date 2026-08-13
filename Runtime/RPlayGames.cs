@@ -9,6 +9,8 @@ namespace RPlay.Games
 {
     public static class RPlayGames
     {
+        internal const double StoryEngineCreditsPerRPlayCoin = 14d;
+
         private static SemaphoreSlim DataMutationLock = new SemaphoreSlim(1, 1);
         private static SemaphoreSlim ConsumeLock = new SemaphoreSlim(1, 1);
         private static SemaphoreSlim SessionRefreshLock = new SemaphoreSlim(1, 1);
@@ -247,6 +249,51 @@ namespace RPlay.Games
             await ConsumeLock.WaitAsync(cancellationToken);
             try
             {
+                var isInjectedWebGlRuntime = RPlayWebGlBridge.IsInjectedSdkRuntime;
+                if (!isInjectedWebGlRuntime)
+                {
+                    await EnsureConnectSessionAsync(cancellationToken);
+
+                    // 확인 팝업보다 먼저 현재 잔액을 조회해 부족한 사용자에게 불필요한 구매 확인을 묻지 않는다.
+                    // 실제 차감 직전에는 서버가 잔액을 다시 검사하므로 조회 이후의 잔액 변경도 서버에서 처리한다.
+                    if (!options.SkipConfirmation)
+                    {
+                        var userInfo = await GetUserInfoAsync(cancellationToken);
+                        var isStoryEngine = connectSession.PlatformType == "storyengine";
+                        var currentBalance = isStoryEngine
+                            ? userInfo.CreditBalance
+                            : (double?)userInfo.CoinBalance;
+                        var requiredAmount = isStoryEngine
+                            ? amount * StoryEngineCreditsPerRPlayCoin
+                            : amount;
+                        if (
+                            userInfo.Success
+                            && currentBalance.HasValue
+                            && currentBalance.Value < requiredAmount
+                        )
+                        {
+                            var insufficientResult = new RPlayConsumeResult
+                            {
+                                Success = false,
+                                Status = isStoryEngine
+                                    ? "insufficient_credits"
+                                    : "insufficient_coins",
+                                ErrorCode = isStoryEngine
+                                    ? "INSUFFICIENT_CREDITS"
+                                    : "INSUFFICIENT_COINS",
+                                CurrentBalance = currentBalance,
+                                Required = requiredAmount,
+                            };
+                            await ShowInsufficientBalanceIfNeededAsync(
+                                insufficientResult,
+                                options,
+                                cancellationToken
+                            );
+                            return insufficientResult;
+                        }
+                    }
+                }
+
                 var requestId = "unity_" + Guid.NewGuid().ToString("N");
                 var requestBody = new
                 {
@@ -258,7 +305,7 @@ namespace RPlay.Games
                     skipConfirmPopup = options.SkipConfirmation,
                 };
 
-                if (RPlayWebGlBridge.IsInjectedSdkRuntime)
+                if (isInjectedWebGlRuntime)
                 {
                     return await apiClient.SendGameApiAsync<RPlayConsumeResult>(
                         UnityWebRequest.kHttpVerbPOST,
@@ -270,7 +317,6 @@ namespace RPlay.Games
                     );
                 }
 
-                await EnsureConnectSessionAsync(cancellationToken);
                 using (var consumeCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
                 {
                     var consumeTask = apiClient.SendGameApiAsync<RPlayConsumeResult>(
