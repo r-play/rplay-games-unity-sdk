@@ -90,19 +90,31 @@ Editor와 데스크톱 빌드에서는 `LoginAsync()`를 호출하면 브라우�
 
 WebGL에서는 RPlay 게임 페이지의 로그인 정보를 사용하므로 별도의 브라우저 로그인 창을 열지 않습니다.
 
-## 주요 API
+## SDK 상태 및 로그인
 
-| 기능 | API |
-| --- | --- |
-| 초기화 및 로그인 | `InitializeAsync`, `LoginAsync`, `LogoutAsync` |
-| 사용자 | `VerifyUserAsync`, `GetUserInfoAsync` |
-| 충전 및 소비 | `RequestChargeAsync`, `ConsumeAsync` |
-| 게임 데이터 | `LoadDataAsync`, `SetDataAsync`, `DeleteDataAsync`, `DeleteAllDataAsync` |
-| 리더보드 | `SetScoreAsync`, `IncrementScoreAsync`, `GetMyRankAsync`, `GetTopRanksAsync`, `GetRanksAroundMeAsync` |
+게임 API를 호출하기 전에 SDK 초기화와 인증이 완료되어야 합니다.
 
-게임 API를 호출하기 전에 SDK 초기화와 인증이 완료되어야 합니다. 현재 상태는 `RPlayGames.IsInitialized`와 `RPlayGames.IsAuthenticated`로 확인할 수 있습니다.
+| 속성 | 타입 | 설명 |
+| --- | --- | --- |
+| `RPlayGames.IsInitialized` | `bool` | SDK 초기화가 완료되었는지 나타냅니다. |
+| `RPlayGames.IsAuthenticated` | `bool` | 게임 API를 호출할 수 있는 인증 상태인지 나타냅니다. |
+| `RPlayGames.ConnectedPlatform` | `RPlayPlatform?` | 현재 연결된 플랫폼입니다. 로그인 전에는 `null`이며, 로그인 후 `RPlay` 또는 `StoryEngine`입니다. |
+| `RPlayGames.Settings` | `RPlayGamesSettings` | 초기화할 때 전달한 설정 에셋입니다. |
+
+| 함수 | 반환형 | 설명 |
+| --- | --- | --- |
+| `InitializeAsync(settings)` | `Task` | `RPlayGamesSettings`를 읽고 SDK를 준비합니다. 같은 설정으로 다시 호출해도 안전합니다. |
+| `LoginAsync()` | `Task` | 게임 API 인증을 시작합니다. Editor와 데스크톱에서는 브라우저 로그인을 열고, WebGL에서는 게임 페이지의 인증을 사용합니다. |
+| `LogoutAsync()` | `Task` | 현재 실행 세션의 로그인을 종료하고 SDK가 보관한 인증 정보를 지웁니다. |
+
+모든 비동기 함수는 마지막 인자로 선택적인 `CancellationToken`을 받을 수 있습니다.
 
 ## 사용자 정보
+
+| 함수 | 반환형 | 설명 |
+| --- | --- | --- |
+| `VerifyUserAsync()` | `Task<RPlayResponse>` | 현재 계정이 이 게임을 플레이할 수 있는지 확인합니다. |
+| `GetUserInfoAsync()` | `Task<RPlayUserInfo>` | 사용자 식별자, 플랫폼, 닉네임 및 재화 잔액을 불러옵니다. |
 
 ```csharp
 var user = await RPlayGames.GetUserInfoAsync();
@@ -111,7 +123,18 @@ user.EnsureSuccess();
 Debug.Log($"닉네임: {user.Nickname}");
 ```
 
-RPlay 계정의 잔액은 `CoinBalance`, StoryEngine 계정의 잔액은 `CreditBalance`에서 확인할 수 있습니다. 현재 연결된 플랫폼은 `RPlayGames.ConnectedPlatform`으로 확인하세요.
+`RPlayUserInfo`의 주요 속성은 다음과 같습니다.
+
+| 속성 | 타입 | 설명 |
+| --- | --- | --- |
+| `UserOid` | `string` | 플랫폼의 사용자 식별자입니다. |
+| `PlatformType` | `string` | 응답을 제공한 플랫폼입니다. |
+| `Nickname` | `string` | 현재 사용자의 닉네임입니다. |
+| `MultiLangNick` | `IReadOnlyDictionary<string, string>` | 언어별 닉네임입니다. |
+| `CoinBalance` | `double` | RPlay 코인 잔액입니다. |
+| `CreditBalance` | `double?` | StoryEngine 크레딧 잔액입니다. RPlay 계정에서는 `null`입니다. |
+
+현재 연결된 플랫폼은 `RPlayGames.ConnectedPlatform`으로 확인할 수 있습니다.
 
 게임의 플레이 권한만 확인하려면 `VerifyUserAsync()`를 사용합니다.
 
@@ -123,7 +146,19 @@ if (!access.Success)
 }
 ```
 
-## 게임 데이터
+## 게임 데이터 저장 및 불러오기
+
+`SetDataAsync()`로 저장한 데이터는 기기 로컬이 아니라 RPlay 서버에 게임과 로그인한 플랫폼 계정별로 저장됩니다. 같은 게임에서 같은 플랫폼 계정으로 로그인하면 다른 실행 세션에서도 `LoadDataAsync()`로 이어서 불러올 수 있습니다.
+
+| 함수 | 반환형 | 설명 |
+| --- | --- | --- |
+| `LoadDataAsync()` | `Task<RPlayGameData>` | 저장된 전체 데이터를 `JObject`로 불러옵니다. `ToObject<T>()`로 원하는 타입으로 변환할 수 있습니다. |
+| `LoadDataAsync<T>()` | `Task<RPlayGameData<T>>` | 저장된 전체 데이터를 지정한 타입 `T`로 불러옵니다. |
+| `RPlayGameData.ToObject<T>()` | `T` | `JObject`로 불러온 데이터를 지정한 타입 `T`로 변환합니다. |
+| `SetDataAsync(key, value)` | `Task<RPlayDataWriteResult>` | 지정한 키 하나를 추가하거나 덮어씁니다. |
+| `SetDataAsync(data)` | `Task<RPlayDataWriteResult>` | 객체에 들어 있는 여러 필드를 한 번에 추가하거나 덮어씁니다. |
+| `DeleteDataAsync(key)` | `Task<RPlayDataWriteResult>` | 지정한 키와 값을 삭제합니다. |
+| `DeleteAllDataAsync()` | `Task<RPlayResponse>` | 현재 사용자의 게임 데이터를 모두 삭제합니다. 리더보드 기록은 유지됩니다. |
 
 ```csharp
 using Newtonsoft.Json;
@@ -151,9 +186,19 @@ await RPlayGames.DeleteDataAsync("chapter");
 await RPlayGames.DeleteAllDataAsync();
 ```
 
-`SetDataAsync(object)`는 전달한 필드를 기존 데이터에 추가하거나 덮어씁니다. `DeleteAllDataAsync()`는 게임 데이터만 삭제하며 리더보드 기록은 유지합니다.
+`RPlayGameData<T>.Data`에는 불러온 데이터가, `DataSize`에는 현재 저장 데이터 크기가 들어 있습니다. 저장 및 삭제 결과의 `RPlayDataWriteResult.DataSize`에서도 변경 후 크기를 확인할 수 있습니다.
+
+`SetDataAsync(object)`는 전달한 필드만 기존 데이터에 추가하거나 덮어씁니다.
 
 ## 리더보드
+
+| 함수 | 반환형 | 설명 |
+| --- | --- | --- |
+| `SetScoreAsync(score)` | `Task<RPlayLeaderboardUpdateResult>` | 내 리더보드 점수를 지정한 값으로 설정합니다. |
+| `IncrementScoreAsync(amount)` | `Task<RPlayLeaderboardUpdateResult>` | 현재 점수에 지정한 값을 더합니다. |
+| `GetMyRankAsync()` | `Task<RPlayLeaderboardMeResult>` | 내 점수와 현재 순위를 불러옵니다. |
+| `GetTopRanksAsync(limit = 50, offset = 0)` | `Task<RPlayLeaderboardPage>` | 상위 순위를 페이지 단위로 불러옵니다. |
+| `GetRanksAroundMeAsync(range = 5)` | `Task<RPlayLeaderboardAroundResult>` | 내 순위를 중심으로 앞뒤 사용자의 순위를 불러옵니다. |
 
 ```csharp
 await RPlayGames.SetScoreAsync(1200);
@@ -170,7 +215,16 @@ around.EnsureSuccess();
 
 `GetTopRanksAsync()`의 `limit`과 `GetRanksAroundMeAsync()`의 `range`는 최대 50입니다.
 
+점수 변경 결과는 `RPlayLeaderboardUpdateResult.Entry`, 내 순위 결과는 `RPlayLeaderboardMeResult.Rank`와 `Entry`에서 확인합니다. 목록 조회 결과의 `Entries`에는 각 사용자의 `Rank`, `Score`, `UpdatedAt` 및 닉네임과 프로필 정보가 들어 있습니다.
+
 ## 재화 충전 및 소비
+
+RPlay에서는 **코인**, StoryEngine에서는 **크레딧**을 사용합니다. SDK는 로그인할 때 연결된 플랫폼을 기준으로 사용할 재화를 자동으로 선택하므로 게임에서 플랫폼이나 재화 종류를 따로 지정할 필요가 없습니다.
+
+| 함수 | 반환형 | 설명 |
+| --- | --- | --- |
+| `RequestChargeAsync()` | `Task<RPlayResponse>` | 연결된 플랫폼의 충전 화면을 엽니다. 반환값으로 화면을 정상적으로 요청했는지 확인할 수 있습니다. |
+| `ConsumeAsync(amount, itemName, options)` | `Task<RPlayConsumeResult>` | 지정한 아이템의 재화 소비를 요청하고 거래 결과와 남은 잔액을 반환합니다. |
 
 충전 화면을 열려면 다음 API를 호출합니다.
 
@@ -179,7 +233,9 @@ var charge = await RPlayGames.RequestChargeAsync();
 charge.EnsureSuccess();
 ```
 
-재화를 소비할 때는 금액과 표시할 아이템 이름을 전달합니다. `amount`는 RPlay와 StoryEngine 모두 게임 코인 단위입니다.
+`RequestChargeAsync()`는 연결된 플랫폼에 맞는 코인 또는 크레딧 충전 화면을 엽니다.
+
+재화를 소비할 때는 금액과 표시할 아이템 이름을 전달합니다. `amount`는 두 플랫폼 모두 RPlay 코인 단위로 입력합니다. RPlay에서는 해당 금액의 코인이 소비되고, StoryEngine에서는 플랫폼의 환산 기준에 따라 크레딧으로 변환되어 소비됩니다. 크레딧 금액은 SDK와 서버가 계산하므로 게임에서 직접 환산하지 않습니다.
 
 ```csharp
 var result = await RPlayGames.ConsumeAsync(
@@ -195,13 +251,33 @@ var result = await RPlayGames.ConsumeAsync(
 result.EnsureSuccess();
 ```
 
-Editor와 데스크톱 빌드에서는 SDK가 소비 확인과 잔액 부족 안내를 표시합니다. WebGL에서는 게임 페이지의 팝업을 사용합니다.
+`RPlayConsumeOptions`로 소비 화면과 함께 전달할 정보를 설정할 수 있습니다.
 
-`SkipConfirmation = true`로 설정하면 SDK의 소비 관련 팝업을 모두 생략합니다.
+| 속성 | 타입 | 설명 |
+| --- | --- | --- |
+| `SkipConfirmation` | `bool` | `true`이면 소비 확인과 잔액 부족 안내를 포함한 SDK 팝업을 모두 생략합니다. 기본값은 `false`입니다. |
+| `ItemDescription` | `string` | 소비 확인 화면에 표시할 아이템 설명입니다. |
+| `Metadata` | `object` | 소비 요청에 함께 전달할 게임별 추가 정보입니다. JSON 객체로 변환 가능한 값을 사용합니다. |
+
+소비가 성공하면 `RPlayConsumeResult.TransactionId`에 거래 식별자가 반환됩니다. 소비 후 잔액은 RPlay 응답의 `RemainingCoins` 또는 StoryEngine 응답의 `RemainingCredits`에서 확인할 수 있습니다.
+
+Editor와 데스크톱 빌드에서는 SDK가 소비 확인과 잔액 부족 안내를 표시합니다. WebGL에서는 게임 페이지의 팝업을 사용합니다.
 
 ## 응답 및 오류 처리
 
 API 응답의 `Success`로 요청 성공 여부를 확인할 수 있습니다. 실패한 응답에서 `EnsureSuccess()`를 호출하면 `RPlayApiException`이 발생합니다.
+
+모든 API 응답은 `RPlayResponse`를 상속하며 다음 공통 속성을 제공합니다.
+
+| 속성 | 타입 | 설명 |
+| --- | --- | --- |
+| `Success` | `bool` | 요청이 성공했는지 나타냅니다. |
+| `Status` | `string` | 요청의 처리 상태입니다. |
+| `ErrorCode` | `string` | 실패 원인을 구분할 수 있는 오류 코드입니다. |
+| `Message` | `string` | 서버가 반환한 오류 또는 안내 메시지입니다. |
+| `HttpStatusCode` | `long` | HTTP 상태 코드입니다. |
+| `RawJson` | `string` | 서버가 반환한 원본 JSON 문자열입니다. |
+| `EnsureSuccess()` | `void` | `Success`가 `false`이면 `RPlayApiException`을 발생시킵니다. |
 
 ```csharp
 try
@@ -215,7 +291,7 @@ catch (RPlayApiException exception)
 }
 ```
 
-응답을 직접 처리하려면 `Success`, `Status`, `ErrorCode`, `Message`를 사용하세요.
+응답을 직접 처리하려면 `Success`, `Status`, `ErrorCode`, `Message`를 사용하세요. `RPlayApiException`에서는 `ErrorCode`, `HttpStatusCode`, `ResponseBody`로 실패 정보를 확인할 수 있습니다.
 
 ## 라이선스
 
