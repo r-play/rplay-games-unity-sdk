@@ -1,5 +1,7 @@
 # RPlay Games Unity SDK
 
+![RPlay Games](Documentation~/images/rplay-games-banner.png)
+
 RPlay Games와 StoryEngine의 로그인, 게임 데이터, 리더보드 및 플랫폼 코인·크레딧 API를 Unity에서 사용할 수 있는 SDK입니다.
 
 ## 요구 사항
