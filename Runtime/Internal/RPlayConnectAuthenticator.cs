@@ -74,10 +74,18 @@ namespace RPlay.Games.Internal
             )
             {
                 callback.Start();
+                // 이 게임의 빌드에서 나온 요청임을 증명하는 서명을 함께 보냅니다.
+                var sdkSignature = RPlaySdkSignature.Create(
+                    settings.SdkKey,
+                    settings.GameOid,
+                    challenge
+                );
                 var query = RPlayApiClient.BuildQuery(
                     ("callback_port", callback.Port),
                     ("code_challenge", challenge),
-                    ("state", state)
+                    ("state", state),
+                    ("sdk_ts", sdkSignature.Timestamp),
+                    ("sdk_sig", sdkSignature.Signature)
                 );
 
                 activeLoginUrl =

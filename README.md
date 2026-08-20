@@ -51,15 +51,19 @@ https://github.com/r-play/rplay-games-unity-sdk.git#v0.1.3
 3. Project 창에서 `Samples/RPlay Games SDK/0.1.3/API Playground` 폴더를 엽니다.
 4. `RPlayGamesApiPlayground` 씬을 열고 Play 버튼을 누릅니다.
 
-샘플에는 테스트용 `GameOid`가 설정되어 있습니다. 실제 게임에서는 해당 게임의 `GameOid`로 교체하세요.
+샘플에는 테스트용 `GameOid`가 설정되어 있지만 `Sdk Key`는 비어 있습니다. 샘플을 실행하려면 본인 게임의 `GameOid`와 `SDK 키`로 교체하세요.
 
 ## 시작하기
 
 ### 1. 설정 에셋 만들기
 
-1. RPlay에서 게임을 만든 뒤 게임 관리 화면에서 `GameOid`를 확인합니다.
+1. RPlay에서 게임을 만든 뒤 게임 관리 화면에서 `GameOid`와 `SDK 키`를 확인합니다.
 2. Unity의 Project 창에서 마우스 오른쪽 버튼을 누르고 `Create > RPlay > Games Settings`를 선택합니다.
-3. 생성된 `RPlayGamesSettings` 에셋의 `Game Oid`에 확인한 값을 입력합니다.
+3. 생성된 `RPlayGamesSettings` 에셋의 `Game Oid`와 `Sdk Key`에 확인한 값을 입력합니다.
+
+`SDK 키`는 게임 관리 화면에서 게임 소유자와 협업자만 볼 수 있습니다. 데스크톱·모바일 빌드는 이 키가 없으면 로그인에 실패하고, WebGL 빌드는 플랫폼이 토큰을 직접 넣어 주므로 키를 사용하지 않습니다.
+
+키는 설정 에셋에 그대로 저장되지 않고 가려서 보관되지만, 빌드를 분석하면 추출될 수 있습니다. 키만으로 모든 부정 사용을 막을 수는 없으므로 저장소나 화면 공유로 노출되지 않도록 관리하세요.
 
 ### 2. 로그인 버튼 연결하기
 

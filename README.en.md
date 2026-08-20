@@ -51,15 +51,19 @@ Use the included API Playground to try all APIs immediately.
 3. Open `Samples/RPlay Games SDK/0.1.3/API Playground` in the Project window.
 4. Open the `RPlayGamesApiPlayground` scene and enter Play mode.
 
-The sample includes a test `GameOid`. Replace it with your game's `GameOid` when integrating the SDK into an actual game.
+The sample includes a test `GameOid`, but its `Sdk Key` is empty. Replace both with your own game's `GameOid` and `SDK key` before running the sample.
 
 ## Getting Started
 
 ### 1. Create a Settings Asset
 
-1. Create a game on RPlay and find its `GameOid` on the game management page.
+1. Create a game on RPlay and find its `GameOid` and `SDK key` on the game management page.
 2. Right-click in Unity's Project window and select `Create > RPlay > Games Settings`.
-3. Enter the `GameOid` in the generated `RPlayGamesSettings` asset's `Game Oid` field.
+3. Enter the `GameOid` and `SDK key` in the generated `RPlayGamesSettings` asset's `Game Oid` and `Sdk Key` fields.
+
+Only the game owner and collaborators can see the `SDK key` on the game management page. Desktop and mobile builds fail to log in without it, while WebGL builds do not use it because the platform injects the token directly.
+
+The key is stored obfuscated rather than in plain text, but it can still be extracted by analysing a build. It cannot prevent every kind of abuse on its own, so keep it out of public repositories and screen shares.
 
 ### 2. Connect a Login Button
 
