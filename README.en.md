@@ -57,11 +57,13 @@ The sample includes a test `GameOid`, but its `Sdk Key` is empty. Replace both w
 
 ### 1. Create a Settings Asset
 
-1. Create a game on RPlay and find its `GameOid` and `SDK key` on the game management page.
-2. Right-click in Unity's Project window and select `Create > RPlay > Games Settings`.
-3. Enter the `GameOid` and `SDK key` in the generated `RPlayGamesSettings` asset's `Game Oid` and `Sdk Key` fields.
+1. Create a game on RPlay and open its game management page. The `GameOid` is part of the address.
+   `https://rplay.live/studio2/game/{GameOid}`
+2. On the same page, set `Game engine` to `Unity` to reveal the `Unity SDK Key` field, then use `Show key` or `Copy` to read it.
+3. Right-click in Unity's Project window and select `Create > RPlay > Games Settings`.
+4. Enter the `GameOid` and `SDK key` in the generated `RPlayGamesSettings` asset's `Game Oid` and `Sdk Key` fields.
 
-Only the game owner and collaborators can see the `SDK key` on the game management page. Desktop and mobile builds fail to log in without it, while WebGL builds do not use it because the platform injects the token directly.
+The `Unity SDK Key` field only appears when the game engine is set to `Unity`, and only the game owner and collaborators can see it. Desktop and mobile builds fail to log in without it, while WebGL builds do not use it because the platform injects the token directly.
 
 The key is stored obfuscated rather than in plain text, but it can still be extracted by analysing a build. It cannot prevent every kind of abuse on its own, so keep it out of public repositories and screen shares.
 

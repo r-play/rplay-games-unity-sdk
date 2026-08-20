@@ -57,11 +57,13 @@ https://github.com/r-play/rplay-games-unity-sdk.git#v0.2.0
 
 ### 1. 설정 에셋 만들기
 
-1. RPlay에서 게임을 만든 뒤 게임 관리 화면에서 `GameOid`와 `SDK 키`를 확인합니다.
-2. Unity의 Project 창에서 마우스 오른쪽 버튼을 누르고 `Create > RPlay > Games Settings`를 선택합니다.
-3. 생성된 `RPlayGamesSettings` 에셋의 `Game Oid`와 `Sdk Key`에 확인한 값을 입력합니다.
+1. RPlay에서 게임을 만든 뒤 게임 관리 화면을 엽니다. 주소에 `GameOid`가 들어 있습니다.
+   `https://rplay.live/studio2/game/{GameOid}`
+2. 같은 화면에서 `게임 엔진`을 `Unity`로 선택하면 `Unity SDK 키` 항목이 나타납니다. `키 보기` 또는 `복사`로 값을 확인합니다.
+3. Unity의 Project 창에서 마우스 오른쪽 버튼을 누르고 `Create > RPlay > Games Settings`를 선택합니다.
+4. 생성된 `RPlayGamesSettings` 에셋의 `Game Oid`와 `Sdk Key`에 확인한 값을 입력합니다.
 
-`SDK 키`는 게임 관리 화면에서 게임 소유자와 협업자만 볼 수 있습니다. 데스크톱·모바일 빌드는 이 키가 없으면 로그인에 실패하고, WebGL 빌드는 플랫폼이 토큰을 직접 넣어 주므로 키를 사용하지 않습니다.
+`Unity SDK 키` 항목은 게임 엔진을 `Unity`로 선택했을 때만 나타나며, 게임 소유자와 협업자만 볼 수 있습니다. 데스크톱·모바일 빌드는 이 키가 없으면 로그인에 실패하고, WebGL 빌드는 플랫폼이 토큰을 직접 넣어 주므로 키를 사용하지 않습니다.
 
 키는 설정 에셋에 그대로 저장되지 않고 가려서 보관되지만, 빌드를 분석하면 추출될 수 있습니다. 키만으로 모든 부정 사용을 막을 수는 없으므로 저장소나 화면 공유로 노출되지 않도록 관리하세요.
 
