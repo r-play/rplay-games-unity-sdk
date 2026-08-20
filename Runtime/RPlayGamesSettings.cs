@@ -1,4 +1,5 @@
 using System;
+using RPlay.Games.Internal;
 using UnityEngine;
 
 namespace RPlay.Games
@@ -9,6 +10,11 @@ namespace RPlay.Games
         [SerializeField]
         private string gameOid = string.Empty;
 
+        // 키를 그대로 적어 두지 않고 가려서 보관합니다. 입력은 인스펙터에서 처리합니다.
+        [SerializeField]
+        [HideInInspector]
+        private string sdkKeyData = string.Empty;
+
         [SerializeField]
         [Range(5, 120)]
         private int requestTimeoutSeconds = 30;
@@ -18,6 +24,12 @@ namespace RPlay.Games
         private int consumeTimeoutSeconds = 190;
 
         public string GameOid => gameOid.Trim();
+
+        /// <summary>
+        /// RPlay 스튜디오에서 발급한 SDK 키입니다.
+        /// 데스크톱·모바일 빌드의 로그인에만 쓰이며 WebGL 빌드에서는 사용하지 않습니다.
+        /// </summary>
+        public string SdkKey => RPlaySdkKeyStore.Unmask(sdkKeyData);
 
         public int RequestTimeoutSeconds => requestTimeoutSeconds;
 
@@ -105,6 +117,16 @@ namespace RPlay.Games
                     );
                 }
             }
+
+#if !UNITY_WEBGL || UNITY_EDITOR
+            // WebGL은 플랫폼이 토큰을 넣어 주므로 키가 필요 없습니다.
+            if (string.IsNullOrWhiteSpace(SdkKey))
+            {
+                throw new InvalidOperationException(
+                    "RPlayGamesSettings에 SDK 키가 필요합니다. RPlay 스튜디오의 게임 설정 화면에서 SDK 키를 복사해 입력하세요."
+                );
+            }
+#endif
         }
     }
 }
