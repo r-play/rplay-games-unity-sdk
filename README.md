@@ -3,7 +3,7 @@
   <p><strong>한국어</strong> · <a href="README.en.md">English</a> · <a href="README.ja.md">日本語</a></p>
   <p>
     <a href="#요구-사항"><img src="https://img.shields.io/badge/Unity-2022.3%2B-000000?logo=unity&logoColor=white" alt="Unity 2022.3 이상"></a>
-    <a href="https://github.com/r-play/rplay-games-unity-sdk/tree/v0.2.0"><img src="https://img.shields.io/badge/version-0.2.0-2596be" alt="버전 0.2.0"></a>
+    <a href="https://github.com/r-play/rplay-games-unity-sdk/tree/v0.2.1"><img src="https://img.shields.io/badge/version-0.2.1-2596be" alt="버전 0.2.1"></a>
     <a href="#라이선스"><img src="https://img.shields.io/badge/license-MIT-2596be" alt="MIT 라이선스"></a>
   </p>
   <img src="Documentation~/images/rplay-games-banner.png" alt="RPlay Games" width="100%">
@@ -39,7 +39,7 @@
 3. 아래 URL을 입력하고 `Install`을 누릅니다.
 
 ```text
-https://github.com/r-play/rplay-games-unity-sdk.git#v0.2.0
+https://github.com/r-play/rplay-games-unity-sdk.git#v0.2.1
 ```
 
 ## 샘플 실행
@@ -48,7 +48,7 @@ https://github.com/r-play/rplay-games-unity-sdk.git#v0.2.0
 
 1. Package Manager에서 `RPlay Games SDK`를 선택합니다.
 2. `Samples`의 `API Playground`에서 `Import`를 누릅니다.
-3. Project 창에서 `Samples/RPlay Games SDK/0.2.0/API Playground` 폴더를 엽니다.
+3. Project 창에서 `Samples/RPlay Games SDK/0.2.1/API Playground` 폴더를 엽니다.
 4. `RPlayGamesApiPlayground` 씬을 열고 Play 버튼을 누릅니다.
 
 샘플에는 테스트용 `GameOid`가 설정되어 있지만 `Sdk Key`는 비어 있습니다. 샘플을 실행하려면 본인 게임의 `GameOid`와 `SDK 키`로 교체하세요.

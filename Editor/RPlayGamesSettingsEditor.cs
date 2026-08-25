@@ -21,16 +21,13 @@ namespace RPlay.Games.Editor
             serializedObject.ApplyModifiedProperties();
 
             EditorGUILayout.Space();
-            var useLocalDevelopmentEnvironment = EditorPrefs.GetBool(
-                "RPlay.Games.UseLocalDevelopmentEnvironment:"
-                    + Application.dataPath,
-                false
-            );
+            var useLocalDevelopmentEnvironment =
+                RPlayGamesSettings.IsLocalDevelopmentEnvironment;
             var settings = (RPlayGamesSettings)target;
             if (useLocalDevelopmentEnvironment)
             {
                 EditorGUILayout.HelpBox(
-                    "실험실 로컬 환경을 사용 중입니다.\n\nRPlay 웹: http://localhost:8080\nStoryEngine 웹: http://localhost:8081\nAPI: http://localhost:2053",
+                    "RPlay 로컬 서버에 연결되어 있습니다.\n\nRPlay 웹: http://localhost:8080\nStoryEngine 웹: http://localhost:8081\nAPI: http://localhost:2053\n\n로컬 서버를 직접 띄우지 않았다면 로그인과 API 호출이 실패합니다.",
                     MessageType.Info
                 );
             }
@@ -40,6 +37,19 @@ namespace RPlay.Games.Editor
                     "API 호출은 운영 환경에 연결됩니다. 저장 데이터, 리더보드, 코인 및 크레딧 소비가 실제 계정에 반영됩니다.",
                     MessageType.Warning
                 );
+            }
+
+            // 이 설정은 현재 기기의 현재 프로젝트에만 저장되며 빌드에는 포함되지 않습니다.
+            if (
+                GUILayout.Button(
+                    useLocalDevelopmentEnvironment
+                        ? "운영 환경으로 전환"
+                        : "RPlay 로컬 서버에 연결 (내부 개발용)"
+                )
+            )
+            {
+                RPlayGamesSettings.IsLocalDevelopmentEnvironment =
+                    !useLocalDevelopmentEnvironment;
             }
 
             if (string.IsNullOrWhiteSpace(settings.GameOid))
