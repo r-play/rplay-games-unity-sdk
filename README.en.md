@@ -3,7 +3,7 @@
   <p><a href="README.md">한국어</a> · <strong>English</strong> · <a href="README.ja.md">日本語</a></p>
   <p>
     <a href="#requirements"><img src="https://img.shields.io/badge/Unity-2022.3%2B-000000?logo=unity&logoColor=white" alt="Unity 2022.3 or later"></a>
-    <a href="https://github.com/r-play/rplay-games-unity-sdk/tree/v0.2.0"><img src="https://img.shields.io/badge/version-0.2.0-2596be" alt="Version 0.2.0"></a>
+    <a href="https://github.com/r-play/rplay-games-unity-sdk/tree/v0.3.0"><img src="https://img.shields.io/badge/version-0.3.0-2596be" alt="Version 0.3.0"></a>
     <a href="#license"><img src="https://img.shields.io/badge/license-MIT-2596be" alt="MIT License"></a>
   </p>
   <img src="Documentation~/images/rplay-games-banner.png" alt="RPlay Games" width="100%">
@@ -39,7 +39,7 @@
 3. Enter the URL below and select `Install`.
 
 ```text
-https://github.com/r-play/rplay-games-unity-sdk.git#v0.2.0
+https://github.com/r-play/rplay-games-unity-sdk.git#v0.3.0
 ```
 
 ## Run the Sample
@@ -48,7 +48,7 @@ Use the included API Playground to try all APIs immediately.
 
 1. Select `RPlay Games SDK` in Package Manager.
 2. Select `Import` for `API Playground` under `Samples`.
-3. Open `Samples/RPlay Games SDK/0.2.0/API Playground` in the Project window.
+3. Open `Samples/RPlay Games SDK/0.3.0/API Playground` in the Project window.
 4. Open the `RPlayGamesApiPlayground` scene and enter Play mode.
 
 The sample includes a test `GameOid`, but its `Sdk Key` is empty. Replace both with your own game's `GameOid` and `SDK key` before running the sample.

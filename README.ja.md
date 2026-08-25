@@ -3,7 +3,7 @@
   <p><a href="README.md">한국어</a> · <a href="README.en.md">English</a> · <strong>日本語</strong></p>
   <p>
     <a href="#動作要件"><img src="https://img.shields.io/badge/Unity-2022.3%2B-000000?logo=unity&logoColor=white" alt="Unity 2022.3 以上"></a>
-    <a href="https://github.com/r-play/rplay-games-unity-sdk/tree/v0.2.0"><img src="https://img.shields.io/badge/version-0.2.0-2596be" alt="バージョン 0.2.0"></a>
+    <a href="https://github.com/r-play/rplay-games-unity-sdk/tree/v0.3.0"><img src="https://img.shields.io/badge/version-0.3.0-2596be" alt="バージョン 0.3.0"></a>
     <a href="#ライセンス"><img src="https://img.shields.io/badge/license-MIT-2596be" alt="MIT ライセンス"></a>
   </p>
   <img src="Documentation~/images/rplay-games-banner.png" alt="RPlay Games" width="100%">
@@ -39,7 +39,7 @@
 3. 次のURLを入力して`Install`を押します。
 
 ```text
-https://github.com/r-play/rplay-games-unity-sdk.git#v0.2.0
+https://github.com/r-play/rplay-games-unity-sdk.git#v0.3.0
 ```
 
 ## サンプルを実行
@@ -48,7 +48,7 @@ https://github.com/r-play/rplay-games-unity-sdk.git#v0.2.0
 
 1. Package Managerで`RPlay Games SDK`を選択します。
 2. `Samples`の`API Playground`で`Import`を押します。
-3. Projectウィンドウで`Samples/RPlay Games SDK/0.2.0/API Playground`フォルダーを開きます。
+3. Projectウィンドウで`Samples/RPlay Games SDK/0.3.0/API Playground`フォルダーを開きます。
 4. `RPlayGamesApiPlayground`シーンを開き、Playボタンを押します。
 
 サンプルにはテスト用の`GameOid`が設定されていますが、`Sdk Key`は空です。サンプルを実行するには、ご自身のゲームの`GameOid`と`SDKキー`に置き換えてください。

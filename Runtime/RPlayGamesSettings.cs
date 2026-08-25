@@ -76,17 +76,37 @@ namespace RPlay.Games
                 : WebOrigin;
         }
 
+#if UNITY_EDITOR
+        /// <summary>
+        /// 로컬 개발 환경 사용 여부가 저장되는 EditorPrefs 키입니다.
+        ///
+        /// 프로젝트 폴더를 옮기거나 이름을 바꿔도 설정이 유지되도록 경로 대신
+        /// 프로젝트 GUID로 구분합니다.
+        /// </summary>
+        public static string LocalDevelopmentPrefKey =>
+            "RPlay.Games.UseLocalDevelopmentEnvironment:"
+            + UnityEditor.PlayerSettings.productGUID;
+
+        /// <summary>
+        /// 에디터에서 RPlay 로컬 서버에 연결할지 여부입니다. RPlay 서버를 직접 띄워
+        /// 개발할 때만 사용합니다.
+        ///
+        /// 이 설정은 에셋이나 빌드에 포함되지 않고 현재 기기의 현재 프로젝트에만
+        /// 보관되므로 저장소나 팀원에게 전달되지 않습니다.
+        /// </summary>
+        public static bool IsLocalDevelopmentEnvironment
+        {
+            get => UnityEditor.EditorPrefs.GetBool(LocalDevelopmentPrefKey, false);
+            set => UnityEditor.EditorPrefs.SetBool(LocalDevelopmentPrefKey, value);
+        }
+#endif
+
         private static bool UseLocalDevelopmentEnvironment
         {
             get
             {
 #if UNITY_EDITOR
-                // 실험실 설정은 에셋이나 빌드에 포함하지 않고 현재 기기와 프로젝트에만 보관합니다.
-                return UnityEditor.EditorPrefs.GetBool(
-                    "RPlay.Games.UseLocalDevelopmentEnvironment:"
-                        + Application.dataPath,
-                    false
-                );
+                return IsLocalDevelopmentEnvironment;
 #else
                 return false;
 #endif
