@@ -256,11 +256,15 @@ namespace RPlay.Games.Internal
     internal sealed class RPlayLoopbackCallback : IDisposable
     {
         private TcpListener listener;
+        private bool? previousRunInBackground;
 
         internal int Port { get; private set; }
 
         internal void Start()
         {
+            // 브라우저로 포커스가 이동해도 로컬 로그인 콜백 처리가 멈추지 않게 합니다.
+            previousRunInBackground = Application.runInBackground;
+            Application.runInBackground = true;
             listener = new TcpListener(IPAddress.Loopback, 0);
             listener.Start(1);
             Port = ((IPEndPoint)listener.LocalEndpoint).Port;
@@ -334,6 +338,11 @@ namespace RPlay.Games.Internal
         public void Dispose()
         {
             Stop();
+            if (previousRunInBackground.HasValue)
+            {
+                Application.runInBackground = previousRunInBackground.Value;
+                previousRunInBackground = null;
+            }
         }
 
         private void Stop()
