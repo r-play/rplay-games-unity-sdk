@@ -3,7 +3,7 @@
   <p><a href="README.md">한국어</a> · <a href="README.en.md">English</a> · <strong>日本語</strong></p>
   <p>
     <a href="#動作要件"><img src="https://img.shields.io/badge/Unity-2022.3%2B-000000?logo=unity&logoColor=white" alt="Unity 2022.3 以上"></a>
-    <a href="https://github.com/r-play/rplay-games-unity-sdk/tree/v0.2.2"><img src="https://img.shields.io/badge/version-0.2.2-2596be" alt="バージョン 0.2.2"></a>
+    <a href="https://github.com/r-play/rplay-games-unity-sdk/tree/v0.2.3"><img src="https://img.shields.io/badge/version-0.2.3-2596be" alt="バージョン 0.2.3"></a>
     <a href="#ライセンス"><img src="https://img.shields.io/badge/license-MIT-2596be" alt="MIT ライセンス"></a>
   </p>
   <img src="Documentation~/images/rplay-games-banner.png" alt="RPlay Games" width="100%">
@@ -21,6 +21,7 @@
 - [SDKの状態とログイン](#sdkの状態とログイン)
 - [ユーザー情報](#ユーザー情報)
 - [ゲームデータの保存と読み込み](#ゲームデータの保存と読み込み)
+  - [ゲーム会社のサーバーがデータを変更する場合](#ゲーム会社のサーバーがデータを変更する場合)
 - [リーダーボード](#リーダーボード)
 - [RPlayコインとStoryEngineクレジット](#rplayコインとstoryengineクレジット)
 - [レスポンスとエラー処理](#レスポンスとエラー処理)
@@ -39,7 +40,7 @@
 3. 次のURLを入力して`Install`を押します。
 
 ```text
-https://github.com/r-play/rplay-games-unity-sdk.git#v0.2.2
+https://github.com/r-play/rplay-games-unity-sdk.git#v0.2.3
 ```
 
 ## サンプルを実行
@@ -48,7 +49,7 @@ https://github.com/r-play/rplay-games-unity-sdk.git#v0.2.2
 
 1. Package Managerで`RPlay Games SDK`を選択します。
 2. `Samples`の`API Playground`で`Import`を押します。
-3. Projectウィンドウで`Samples/RPlay Games SDK/0.2.2/API Playground`フォルダーを開きます。
+3. Projectウィンドウで`Samples/RPlay Games SDK/0.2.3/API Playground`フォルダーを開きます。
 4. `RPlayGamesApiPlayground`シーンを開き、Playボタンを押します。
 
 サンプルにはテスト用の`GameOid`が設定されていますが、`Sdk Key`は空です。サンプルを実行するには、ご自身のゲームの`GameOid`と`SDKキー`に置き換えてください。
@@ -187,6 +188,7 @@ if (!access.Success)
 | `RPlayGameData.ToObject<T>()` | `T` | `JObject`として読み込んだデータを指定した型`T`に変換します。 |
 | `SetDataAsync(key, value)` | `Task<RPlayDataWriteResult>` | 指定した1つのキーを追加または上書きします。 |
 | `SetDataAsync(data)` | `Task<RPlayDataWriteResult>` | オブジェクト内の複数フィールドをまとめて追加または上書きします。 |
+| `IncrementDataAsync(key, amount)` | `Task<RPlayDataWriteResult>` | 指定したキーの数値に指定した値を加算します。負の値を渡すと減算します。 |
 | `DeleteDataAsync(key)` | `Task<RPlayDataWriteResult>` | 指定したキーと値を削除します。 |
 | `DeleteAllDataAsync()` | `Task<RPlayResponse>` | 現在のユーザーのゲームデータをすべて削除します。リーダーボードの記録は保持されます。 |
 
@@ -206,6 +208,7 @@ public sealed class PlayerSave
 ```csharp
 await RPlayGames.SetDataAsync("chapter", 3);
 await RPlayGames.SetDataAsync(new { chapter = 3, hp = 80 });
+await RPlayGames.IncrementDataAsync("hp", -10);
 
 var save = await RPlayGames.LoadDataAsync<PlayerSave>();
 save.EnsureSuccess();
@@ -219,6 +222,15 @@ await RPlayGames.DeleteAllDataAsync();
 `RPlayGameData<T>.Data`には読み込んだデータが、`DataSize`には現在の保存データサイズが入ります。保存・削除後のサイズは`RPlayDataWriteResult.DataSize`でも確認できます。
 
 `SetDataAsync(object)`は、渡したフィールドのみを既存データへ追加または上書きします。
+
+`IncrementDataAsync()`は、サーバーに現在保存されている値に加算します。保存された値がない場合は0から始まり、結果が0未満になってもそのまま保存されます。保存された値が数値でない場合は`NOT_A_NUMBER`エラーが返されます。
+
+### ゲーム会社のサーバーがデータを変更する場合
+
+ゲーム会社のサーバーがAPIマスターキーでユーザーデータを変更しても(例: 決済後の通貨付与)、実行中のゲームはそのことをすぐには知ることができません。Web(WebGL)では既定でゲームが再起動され、変更後のデータを読み込みますが、デスクトップビルドは再起動されません。次の2点を守ってください。
+
+- 決済など、ゲーム会社のサーバーがデータを変更する処理が終わったら、`LoadDataAsync()`でデータを読み込み直して画面に反映してください。
+- ゲーム会社のサーバーも変更するキー(通貨など)は、`SetDataAsync()`ではなく`IncrementDataAsync()`で保存してください。`SetDataAsync()`はゲームが保持している値で上書きするため、その間にゲーム会社のサーバーが加算した値が失われることがあります。
 
 ## リーダーボード
 
