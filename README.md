@@ -21,6 +21,7 @@
 - [SDK 상태 및 로그인](#sdk-상태-및-로그인)
 - [사용자 정보](#사용자-정보)
 - [게임 데이터 저장 및 불러오기](#게임-데이터-저장-및-불러오기)
+  - [게임사 서버에서 데이터를 바꾸는 경우](#게임사-서버에서-데이터를-바꾸는-경우)
 - [리더보드](#리더보드)
 - [RPlay 코인 및 StoryEngine 크레딧](#rplay-코인-및-storyengine-크레딧)
 - [응답 및 오류 처리](#응답-및-오류-처리)
@@ -187,6 +188,7 @@ if (!access.Success)
 | `RPlayGameData.ToObject<T>()` | `T` | `JObject`로 불러온 데이터를 지정한 타입 `T`로 변환합니다. |
 | `SetDataAsync(key, value)` | `Task<RPlayDataWriteResult>` | 지정한 키 하나를 추가하거나 덮어씁니다. |
 | `SetDataAsync(data)` | `Task<RPlayDataWriteResult>` | 객체에 들어 있는 여러 필드를 한 번에 추가하거나 덮어씁니다. |
+| `IncrementDataAsync(key, amount)` | `Task<RPlayDataWriteResult>` | 지정한 키의 숫자 값에 지정한 값을 더합니다. 음수를 넣으면 뺍니다. |
 | `DeleteDataAsync(key)` | `Task<RPlayDataWriteResult>` | 지정한 키와 값을 삭제합니다. |
 | `DeleteAllDataAsync()` | `Task<RPlayResponse>` | 현재 사용자의 게임 데이터를 모두 삭제합니다. 리더보드 기록은 유지됩니다. |
 
@@ -206,6 +208,7 @@ public sealed class PlayerSave
 ```csharp
 await RPlayGames.SetDataAsync("chapter", 3);
 await RPlayGames.SetDataAsync(new { chapter = 3, hp = 80 });
+await RPlayGames.IncrementDataAsync("hp", -10);
 
 var save = await RPlayGames.LoadDataAsync<PlayerSave>();
 save.EnsureSuccess();
@@ -219,6 +222,15 @@ await RPlayGames.DeleteAllDataAsync();
 `RPlayGameData<T>.Data`에는 불러온 데이터가, `DataSize`에는 현재 저장 데이터 크기가 들어 있습니다. 저장 및 삭제 결과의 `RPlayDataWriteResult.DataSize`에서도 변경 후 크기를 확인할 수 있습니다.
 
 `SetDataAsync(object)`는 전달한 필드만 기존 데이터에 추가하거나 덮어씁니다.
+
+`IncrementDataAsync()`는 서버에 지금 저장된 값에 더합니다. 저장된 값이 없으면 0에서 시작하고, 결과가 0보다 작아져도 그대로 저장됩니다. 저장된 값이 숫자가 아니면 `NOT_A_NUMBER` 오류가 반환됩니다.
+
+### 게임사 서버에서 데이터를 바꾸는 경우
+
+게임사 서버가 API 마스터키로 사용자 데이터를 바꿔도(예: 결제 후 재화 지급) 실행 중인 게임은 그 사실을 바로 알 수 없습니다. 웹(WebGL)에서는 기본적으로 게임이 다시 시작되어 바뀐 데이터를 불러오지만, 데스크톱 빌드는 다시 시작되지 않습니다. 다음 두 가지를 지켜 주세요.
+
+- 결제처럼 게임사 서버가 데이터를 바꾸는 과정이 끝나면 `LoadDataAsync()`로 데이터를 다시 불러와 화면에 반영하세요.
+- 게임사 서버도 바꾸는 키(재화 등)는 `SetDataAsync()` 대신 `IncrementDataAsync()`로 저장하세요. `SetDataAsync()`는 게임이 들고 있던 값으로 덮어쓰기 때문에, 그 사이 게임사 서버가 더한 값이 사라질 수 있습니다.
 
 ## 리더보드
 

@@ -21,6 +21,7 @@
 - [SDK State and Authentication](#sdk-state-and-authentication)
 - [User Information](#user-information)
 - [Save and Load Game Data](#save-and-load-game-data)
+  - [When Your Game Servers Change Data](#when-your-game-servers-change-data)
 - [Leaderboard](#leaderboard)
 - [RPlay Coins and StoryEngine Credits](#rplay-coins-and-storyengine-credits)
 - [Responses and Error Handling](#responses-and-error-handling)
@@ -187,6 +188,7 @@ Data saved with `SetDataAsync()` is stored on the RPlay server for each game and
 | `RPlayGameData.ToObject<T>()` | `T` | Converts data loaded as a `JObject` to the specified type `T`. |
 | `SetDataAsync(key, value)` | `Task<RPlayDataWriteResult>` | Adds or overwrites a single key. |
 | `SetDataAsync(data)` | `Task<RPlayDataWriteResult>` | Adds or overwrites multiple fields from an object at once. |
+| `IncrementDataAsync(key, amount)` | `Task<RPlayDataWriteResult>` | Adds the specified value to the numeric value of a key. A negative value subtracts. |
 | `DeleteDataAsync(key)` | `Task<RPlayDataWriteResult>` | Deletes the specified key and value. |
 | `DeleteAllDataAsync()` | `Task<RPlayResponse>` | Deletes all game data for the current user. Leaderboard records are preserved. |
 
@@ -206,6 +208,7 @@ public sealed class PlayerSave
 ```csharp
 await RPlayGames.SetDataAsync("chapter", 3);
 await RPlayGames.SetDataAsync(new { chapter = 3, hp = 80 });
+await RPlayGames.IncrementDataAsync("hp", -10);
 
 var save = await RPlayGames.LoadDataAsync<PlayerSave>();
 save.EnsureSuccess();
@@ -219,6 +222,15 @@ await RPlayGames.DeleteAllDataAsync();
 `RPlayGameData<T>.Data` contains the loaded data, while `DataSize` contains the current saved-data size. You can also read the size after a write or delete from `RPlayDataWriteResult.DataSize`.
 
 `SetDataAsync(object)` adds or overwrites only the fields supplied in the object.
+
+`IncrementDataAsync()` adds to the value currently stored on the server. A missing value starts from 0, and the result is saved even if it falls below 0. If the stored value is not a number, the `NOT_A_NUMBER` error is returned.
+
+### When Your Game Servers Change Data
+
+When your game servers change a user's data with the API master key (for example, granting currency after a purchase), a running game does not know about it right away. On the web (WebGL), the game restarts by default and loads the changed data, but desktop builds do not restart. Follow these two rules.
+
+- When a process in which your game servers change data, such as a purchase, finishes, load the data again with `LoadDataAsync()` and reflect it on screen.
+- Save keys that your game servers also change, such as currency, with `IncrementDataAsync()` instead of `SetDataAsync()`. `SetDataAsync()` overwrites the value with the one the game is holding, so a value your game servers added in the meantime can be lost.
 
 ## Leaderboard
 

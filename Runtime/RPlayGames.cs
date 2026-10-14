@@ -532,6 +532,27 @@ namespace RPlay.Games
             );
         }
 
+        public static async Task<RPlayDataWriteResult> IncrementDataAsync(
+            string key,
+            double amount,
+            CancellationToken cancellationToken = default
+        )
+        {
+            EnsureReady();
+            ValidateDataKey(key);
+            if (double.IsNaN(amount) || double.IsInfinity(amount))
+            {
+                throw new ArgumentOutOfRangeException(nameof(amount), "더할 값은 유한한 숫자여야 합니다.");
+            }
+
+            return await ExecuteDataMutationAsync(
+                UnityWebRequest.kHttpVerbPOST,
+                "/data",
+                new { key, value = amount, operation = "increment" },
+                cancellationToken
+            );
+        }
+
         public static async Task<RPlayDataWriteResult> DeleteDataAsync(
             string key,
             CancellationToken cancellationToken = default
